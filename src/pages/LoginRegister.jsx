@@ -1,165 +1,199 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../supabaseClient'; // Ajustá ruta si hace falta
+import { useAuth } from '../context/AuthContext';
+import { MGSTheme } from '../theme/mgs-theme';
+import { playSound } from '../assets/sounds/sounds';
 
-const LoginRegister = () => {
+export default function LoginRegister() {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [nombre, setNombre] = useState('');
-  const [apellido, setApellido] = useState('');
-  const [errorMsg, setErrorMsg] = useState(null);
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    codename: ''
+  });
+  const [error, setError] = useState('');
+  const { login, register } = useAuth();
   const navigate = useNavigate();
 
-  // Función para hacer login
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setErrorMsg(null);
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      setErrorMsg(error.message);
-      return;
-    }
-    if (data.user) {
-      // Traer perfil
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', data.user.id)
-        .single();
-
-      if (profileError) {
-        setErrorMsg('Error al obtener perfil');
-        return;
-      }
-
-      if (profile.role === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/perfil');
-      }
-    }
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
-  // Función para registrar
-  const handleRegister = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMsg(null);
-    if (!nombre || !apellido) {
-      setErrorMsg('Completa nombre y apellido');
-      return;
-    }
-    const { data, error } = await supabase.auth.signUp({ email, password });
-    if (error) {
-      setErrorMsg(error.message);
-      return;
-    }
-    if (data.user) {
-      // Crear perfil
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert([{ id: data.user.id, nombres: nombre, apellidos: apellido, role: 'user' }]);
-      if (profileError) {
-        setErrorMsg('Error al crear perfil');
-        return;
+    playSound('beep');
+    
+    try {
+      if (isLogin) {
+        await login(formData.email, formData.password);
+      } else {
+        await register(formData.email, formData.password, formData.codename);
       }
-      // Redirigir a perfil tras registro
-      navigate('/perfil');
+      navigate('/');
+    } catch (err) {
+      setError(err.message);
+      playSound('alert');
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex flex-col justify-center px-6 py-16 text-[#c9b037] font-stencil tracking-widest">
-      <div className="flex justify-center mb-6 gap-8">
+    <div style={{
+      background: `linear-gradient(rgba(15, 15, 15, 0.9), rgba(15, 15, 15, 0.9))`,
+      minHeight: '100vh',
+      padding: '20px',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      fontFamily: MGSTheme.fonts.body
+    }}>
+      <div style={{
+        border: `2px solid ${MGSTheme.colors.diamond}`,
+        borderRadius: '8px',
+        padding: '30px',
+        width: '100%',
+        maxWidth: '400px',
+        background: 'rgba(42, 58, 47, 0.8)',
+        boxShadow: `0 0 15px ${MGSTheme.colors.diamond}`
+      }}>
+        <h2 style={{
+          color: MGSTheme.colors.hud,
+          textAlign: 'center',
+          marginBottom: '30px',
+          borderBottom: `1px dashed ${MGSTheme.colors.diamond}`,
+          paddingBottom: '10px'
+        }}>
+          {isLogin ? '[ ACCESO A MOTHER BASE ]' : '[ NUEVO RECLUTA ]'}
+        </h2>
+
+        {error && (
+          <div style={{
+            color: '#FF3333',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            padding: '10px',
+            marginBottom: '20px',
+            borderRadius: '4px',
+            border: '1px solid #FF3333'
+          }}>
+            ⚠️ {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{
+              display: 'block',
+              color: MGSTheme.colors.hud,
+              marginBottom: '8px'
+            }}>
+              FREQUENCY (EMAIL):
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              style={inputStyle}
+              onFocus={() => playSound('hover')}
+            />
+          </div>
+
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{
+              display: 'block',
+              color: MGSTheme.colors.hud,
+              marginBottom: '8px'
+            }}>
+              PASSWORD:
+            </label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              style={inputStyle}
+              onFocus={() => playSound('hover')}
+            />
+          </div>
+
+          {!isLogin && (
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{
+                display: 'block',
+                color: MGSTheme.colors.hud,
+                marginBottom: '8px'
+              }}>
+                CODENAME:
+              </label>
+              <input
+                type="text"
+                name="codename"
+                value={formData.codename}
+                onChange={handleChange}
+                required
+                style={inputStyle}
+                onFocus={() => playSound('hover')}
+              />
+            </div>
+          )}
+
+          <button
+            type="submit"
+            style={{
+              ...buttonStyle,
+              backgroundColor: MGSTheme.colors.diamond
+            }}
+            onMouseEnter={() => playSound('hover')}
+          >
+            {isLogin ? '[ ACCEDER ]' : '[ REGISTRAR ]'}
+          </button>
+        </form>
+
         <button
-          onClick={() => setIsLogin(true)}
-          className={`px-4 py-2 font-bold border-b-4 ${
-            isLogin ? 'border-[#c9b037]' : 'border-transparent opacity-60'
-          } transition`}
+          onClick={() => {
+            playSound('beep');
+            setIsLogin(!isLogin);
+            setError('');
+          }}
+          style={{
+            ...buttonStyle,
+            marginTop: '15px',
+            backgroundColor: 'transparent',
+            border: `1px solid ${MGSTheme.colors.hud}`
+          }}
+          onMouseEnter={() => playSound('hover')}
         >
-          Ingresar
-        </button>
-        <button
-          onClick={() => setIsLogin(false)}
-          className={`px-4 py-2 font-bold border-b-4 ${
-            !isLogin ? 'border-[#c9b037]' : 'border-transparent opacity-60'
-          } transition`}
-        >
-          Registrarse
+          {isLogin ? '[ ¿NUEVO RECLUTA? ]' : '[ ¿YA TIENES CUENTA? ]'}
         </button>
       </div>
-
-      {errorMsg && <p className="text-red-500 mb-4 text-center">{errorMsg}</p>}
-
-      {isLogin ? (
-        <form onSubmit={handleLogin} className="flex flex-col gap-4 max-w-md mx-auto">
-          <input
-            type="email"
-            placeholder="Email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="p-3 rounded bg-[#1a1a1a] text-[#c9b037] border border-[#c9b037]"
-          />
-          <input
-            type="password"
-            placeholder="Contraseña"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="p-3 rounded bg-[#1a1a1a] text-[#c9b037] border border-[#c9b037]"
-          />
-          <button
-            type="submit"
-            className="bg-[#c9b037] text-[#0a0a0a] py-3 rounded font-bold hover:bg-[#d0b94a] transition"
-          >
-            Ingresar
-          </button>
-        </form>
-      ) : (
-        <form onSubmit={handleRegister} className="flex flex-col gap-4 max-w-md mx-auto">
-          <input
-            type="text"
-            placeholder="Nombre"
-            required
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            className="p-3 rounded bg-[#1a1a1a] text-[#c9b037] border border-[#c9b037]"
-          />
-          <input
-            type="text"
-            placeholder="Apellido"
-            required
-            value={apellido}
-            onChange={(e) => setApellido(e.target.value)}
-            className="p-3 rounded bg-[#1a1a1a] text-[#c9b037] border border-[#c9b037]"
-          />
-          <input
-            type="email"
-            placeholder="Email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="p-3 rounded bg-[#1a1a1a] text-[#c9b037] border border-[#c9b037]"
-          />
-          <input
-            type="password"
-            placeholder="Contraseña"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="p-3 rounded bg-[#1a1a1a] text-[#c9b037] border border-[#c9b037]"
-          />
-          <button
-            type="submit"
-            className="bg-[#c9b037] text-[#0a0a0a] py-3 rounded font-bold hover:bg-[#d0b94a] transition"
-          >
-            Registrarse
-          </button>
-        </form>
-      )}
     </div>
   );
+}
+
+const inputStyle = {
+  width: '100%',
+  padding: '12px',
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  border: `1px solid ${MGSTheme.colors.hud}`,
+  color: MGSTheme.colors.text,
+  fontFamily: '"Courier New", monospace',
+  borderRadius: '4px'
 };
 
-export default LoginRegister;
+const buttonStyle = {
+  width: '100%',
+  padding: '12px',
+  color: 'white',
+  border: 'none',
+  borderRadius: '4px',
+  cursor: 'pointer',
+  fontFamily: '"Agency FB", sans-serif',
+  fontSize: '16px',
+  fontWeight: 'bold',
+  transition: 'all 0.3s ease'
+};

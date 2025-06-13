@@ -1,102 +1,44 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import SoundOnHover from "./SoundOnHover";
+import React from 'react';
+import { MGSTheme } from '../theme/mgs-theme';
+import IDroidMenu from '../components/IDroidMenu';
+import logoDD from '../assets/images/logo-dd.png';
 
-const Home = () => {
-  const navigate = useNavigate();
-
-  const handleStartMission = () => {
-    navigate("/loginregister");
-  };
-
+export default function Home() {
   return (
-    <main
-      className="relative min-h-screen px-6 py-24 flex flex-col justify-center items-center bg-cover bg-center text-mgsv-text font-poppins"
-      style={{
-        backgroundImage: "url('/images/snake_home.jpg')",
-        filter: "brightness(0.4)",
-      }}
-    >
-      {/* Capa oscura y ruido tipo scan */}
-      <div className="absolute inset-0 bg-black opacity-80 z-0" />
-      <div className="absolute inset-0 pointer-events-none z-10 bg-[url('/images/noise.png')] opacity-10" />
+    <div style={{
+      background: `linear-gradient(rgba(15, 15, 15, 0.9), rgba(15, 15, 15, 0.9)), url(${logoDD})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      minHeight: '100vh',
+      padding: '20px',
+      color: MGSTheme.colors.hud,
+      fontFamily: MGSTheme.fonts.body
+    }}>
+      <img 
+        src={logoDD} 
+        alt="Diamond Dogs"
+        style={{ 
+          width: '80%', 
+          maxWidth: '300px', 
+          margin: '0 auto', 
+          display: 'block',
+          filter: 'drop-shadow(0 0 5px #FF8C00)'
+        }}
+      />
+      
+      <IDroidMenu />
 
-      <SoundOnHover>
-        <section className="relative max-w-2xl text-center z-20 space-y-6">
-          <img
-            src="/images/logo.png"
-            alt="Logo Diamond Dogs"
-            className="h-28 mx-auto animate-fade-in-up"
-          />
-
-          <h1
-            className="text-4xl sm:text-5xl font-anton uppercase text-mgsv-red tracking-widest animate-fade-in-up"
-            style={{
-              animation: "glitchFlicker 3s infinite alternate",
-            }}
-          >
-            DIAMOND DOGS
-          </h1>
-
-          <p className="text-sm sm:text-base text-center text-gray-400 animate-fade-in-up">
-            Base Central: Corrientes, Argentina
-          </p>
-
-          <p className="text-sm sm:text-base text-center text-mgsv-text leading-relaxed animate-fade-in-up">
-            Arsenal táctico de vapeo:{" "}
-            <span className="text-mgsv-red font-semibold">
-              tecnología y precisión para tu próxima misión
-            </span>
-            . No es un hábito, es estrategia. 🧪⚔️
-          </p>
-        </section>
-
-        <section className="relative z-20 mt-10 space-y-4 w-full max-w-sm">
-          <button
-            onClick={handleStartMission}
-            className="w-full bg-mgsv-red hover:bg-mgsv-red-hover text-white py-3 rounded shadow-md uppercase tracking-wider transition duration-300"
-          >
-            Iniciar misión
-          </button>
-
-          <button className="w-full border border-mgsv-green text-mgsv-green bg-transparent py-3 rounded uppercase tracking-wider hover:bg-[#111] transition duration-300">
-            Solicitar reabastecimiento
-          </button>
-        </section>
-      </SoundOnHover>
-
-      {/* Animaciones MGSV */}
-      <style>
-        {`
-          @keyframes glitchFlicker {
-            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
-              text-shadow:
-                0 0 4px #7a0000,
-                0 0 10px #7a0000;
-            }
-            20%, 22%, 24%, 55% {
-              text-shadow: none;
-            }
-          }
-
-          @keyframes fade-in-up {
-            0% {
-              opacity: 0;
-              transform: translateY(30px);
-            }
-            100% {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-
-          .animate-fade-in-up {
-            animation: fade-in-up 0.8s ease forwards;
-          }
-        `}
-      </style>
-    </main>
+      <div style={{
+        backgroundColor: 'rgba(42, 58, 47, 0.7)',
+        border: `2px solid ${MGSTheme.colors.diamond}`,
+        marginTop: '30px',
+        padding: '15px',
+        textAlign: 'center',
+        fontSize: '14px'
+      }}>
+        <p>STATUS: <span style={{ color: MGSTheme.colors.hud }}>ALL CLEAR</span></p>
+        <p>VAPERS AVAILABLE: <span style={{ color: MGSTheme.colors.diamond }}>12 UNITS</span></p>
+      </div>
+    </div>
   );
-};
-
-export default Home;
+}

@@ -1,58 +1,100 @@
 import React from "react";
-import { useNavigate } from "react-router-dom"; // IMPORT
+import { useNavigate } from "react-router-dom";
 import SoundOnHover from "./SoundOnHover";
 
 const Home = () => {
-  const navigate = useNavigate(); // hook para navegación
+  const navigate = useNavigate();
 
   const handleStartMission = () => {
-    navigate("/loginregister"); // ruta a login/signup, ajustá según tu ruta real
+    navigate("/loginregister");
   };
 
   return (
     <main
-      className="relative min-h-screen text-[#c9b037] font-stencil tracking-widest px-6 py-32 flex flex-col justify-center items-center bg-no-repeat bg-center bg-repeat"
+      className="relative min-h-screen px-6 py-24 flex flex-col justify-center items-center bg-cover bg-center text-mgsv-text font-poppins"
       style={{
         backgroundImage: "url('/images/snake_home.jpg')",
-        filter: "brightness(0.9)",
+        filter: "brightness(0.4)",
       }}
     >
-      <div className="absolute inset-0 bg-black opacity-75 pointer-events-none z-0"></div>
+      {/* Capa oscura y ruido tipo scan */}
+      <div className="absolute inset-0 bg-black opacity-80 z-0" />
+      <div className="absolute inset-0 pointer-events-none z-10 bg-[url('/images/noise.png')] opacity-10" />
 
       <SoundOnHover>
-        <section className="relative max-w-4xl text-center mb-20 z-10">
+        <section className="relative max-w-2xl text-center z-20 space-y-6">
           <img
             src="/images/logo.png"
             alt="Logo Diamond Dogs"
-            className="h-36 mx-auto mb-10 drop-shadow-[0_0_10px_rgba(201,176,55,0.8)] animate-fade-in-up"
+            className="h-28 mx-auto animate-fade-in-up"
           />
-          <h1 className="text-5xl sm:text-6xl font-extrabold mb-6 uppercase drop-shadow-[0_0_12px_rgba(201,176,55,0.9)] animate-fade-in-up-delay">
-            Diamond Dogs
+
+          <h1
+            className="text-4xl sm:text-5xl font-anton uppercase text-mgsv-red tracking-widest animate-fade-in-up"
+            style={{
+              animation: "glitchFlicker 3s infinite alternate",
+            }}
+          >
+            DIAMOND DOGS
           </h1>
-          <p className="text-lg sm:text-xl mb-4 text-[#f9f9d1] italic animate-fade-in-up-delay">
+
+          <p className="text-sm sm:text-base text-center text-gray-400 animate-fade-in-up">
             Base Central: Corrientes, Argentina
           </p>
-          <p className="text-md sm:text-lg mb-10 text-[#f9f9d1]">
-            Equipando a los soldados del vapeo con{" "}
-            <span className="text-[#c9b037] font-bold">
-              arsenal de última generación
+
+          <p className="text-sm sm:text-base text-center text-mgsv-text leading-relaxed animate-fade-in-up">
+            Arsenal táctico de vapeo:{" "}
+            <span className="text-mgsv-red font-semibold">
+              tecnología y precisión para tu próxima misión
             </span>
-            . Tecnología, estilo y precisión: tu próxima misión empieza acá. 🧪⚔️
+            . No es un hábito, es estrategia. 🧪⚔️
           </p>
         </section>
 
-        <section className="relative max-w-4xl text-center flex flex-col gap-y-12 z-10">
+        <section className="relative z-20 mt-10 space-y-4 w-full max-w-sm">
           <button
-            onClick={handleStartMission} // asigno el evento
-            className="bg-[#c9b037] text-[#0a0a0a] font-bold uppercase tracking-widest py-3 px-8 rounded-lg shadow-lg hover:bg-[#d0b94a] transition-colors duration-300 animate-fade-in-up"
+            onClick={handleStartMission}
+            className="w-full bg-mgsv-red hover:bg-mgsv-red-hover text-white py-3 rounded shadow-md uppercase tracking-wider transition duration-300"
           >
             Iniciar misión
           </button>
-          <button className="border-2 border-[#c9b037] text-[#c9b037] font-bold uppercase tracking-widest py-3 px-8 rounded-lg shadow-lg hover:bg-[#c9b037] hover:text-[#0a0a0a] transition-colors duration-300 animate-fade-in-up-delay">
+
+          <button className="w-full border border-mgsv-green text-mgsv-green bg-transparent py-3 rounded uppercase tracking-wider hover:bg-[#111] transition duration-300">
             Solicitar reabastecimiento
           </button>
         </section>
       </SoundOnHover>
+
+      {/* Animaciones MGSV */}
+      <style>
+        {`
+          @keyframes glitchFlicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+              text-shadow:
+                0 0 4px #7a0000,
+                0 0 10px #7a0000;
+            }
+            20%, 22%, 24%, 55% {
+              text-shadow: none;
+            }
+          }
+
+          @keyframes fade-in-up {
+            0% {
+              opacity: 0;
+              transform: translateY(30px);
+            }
+            100% {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          .animate-fade-in-up {
+            animation: fade-in-up 0.8s ease forwards;
+          }
+        `}
+      </style>
     </main>
   );
 };

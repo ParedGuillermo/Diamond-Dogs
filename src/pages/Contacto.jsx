@@ -3,7 +3,7 @@ import { FaWhatsapp, FaInstagram, FaMapMarkerAlt } from 'react-icons/fa'
 
 const Contacto = () => {
   return (
-    <section className="max-w-3xl mx-auto mt-12 px-6 text-center">
+    <section className="max-w-3xl mx-auto mt-12 px-6 text-center font-stencil">
       <h2 className="text-3xl font-extrabold text-[#C9B037] tracking-wider mb-4 uppercase">
         Comunicación Táctica
       </h2>
@@ -13,10 +13,10 @@ const Contacto = () => {
 
       <div className="bg-[#2C3E2F] p-6 rounded-lg shadow-lg space-y-6 text-left text-lg">
         <div>
-          <p className="text-[#C9B037] font-bold flex items-center">
-            <FaWhatsapp className="mr-2 text-[#C9B037]" />
+          <h3 className="text-[#C9B037] font-bold flex items-center">
+            <FaWhatsapp className="mr-2" />
             Canal Codificado - WhatsApp
-          </p>
+          </h3>
           <a
             href="https://wa.me/5493794123456"
             target="_blank"
@@ -30,10 +30,10 @@ const Contacto = () => {
         </div>
 
         <div>
-          <p className="text-[#C9B037] font-bold flex items-center">
-            <FaInstagram className="mr-2 text-[#C9B037]" />
+          <h3 className="text-[#C9B037] font-bold flex items-center">
+            <FaInstagram className="mr-2" />
             Visual Recon - Instagram
-          </p>
+          </h3>
           <a
             href="https://instagram.com/diamond_dogs_ctes"
             target="_blank"
@@ -47,10 +47,10 @@ const Contacto = () => {
         </div>
 
         <div>
-          <p className="text-[#C9B037] font-bold flex items-center">
-            <FaMapMarkerAlt className="mr-2 text-[#C9B037]" />
+          <h3 className="text-[#C9B037] font-bold flex items-center">
+            <FaMapMarkerAlt className="mr-2" />
             Base de Operaciones
-          </p>
+          </h3>
           <p className="text-[#cccccc] ml-6">Corrientes Capital, Argentina</p>
         </div>
       </div>

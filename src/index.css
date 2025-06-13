@@ -1,23 +1,24 @@
+/* @tailwind directives removed because Tailwind CSS is not being processed */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Estilos globales iDROID */
+/* Colores base inspirados en MGS V */
+:root {
+  --mgs-bg: #0b0e0b; /* casi negro con tinte verde */
+  --mgs-text-main: #a6d608; /* verde neón típico */
+  --mgs-text-secondary: #8a9a5b; /* verde oliva grisáceo */
+  --mgs-text-heading: #dbe8b6; /* verde claro */
+  --mgs-accent: #c6d73f; /* amarillo verdoso */
+  --mgs-accent-hover: #e5f05e;
+  --mgs-surface: #1c2220; /* verde oscuro opaco */
+  --mgs-border: #506040; /* verde militar apagado */
+}
+
+/* Estilos globales MGS V TPP */
 body {
-  @apply bg-idroid-bg text-idroid-textMain font-sans;
-}
-
-/* Títulos */
-h1, h2, h3, h4 {
-  @apply font-stencil text-idroid-textHeading tracking-widest;
-}
-
-/* Botones */
-.btn-idroid {
-  @apply bg-idroid-accent text-black font-bold px-5 py-2 rounded-full shadow-md hover:bg-idroid-accentHover transition;
-}
-
-/* Tarjetas */
-.card-idroid {
-  @apply bg-idroid-surface border border-idroid-border p-6 rounded-xl shadow-lg text-idroid-textMain hover:border-idroid-accent transition-all;
+  background-color: var(--mgs-bg);
+  color: var(--mgs-text-main);
+  font-family: 'stencil', monospace, sans-serif;
+  letter-spacing: 0.1em;
 }

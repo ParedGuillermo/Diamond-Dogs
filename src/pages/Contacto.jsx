@@ -1,4 +1,5 @@
 import React from 'react'
+import { FaWhatsapp, FaInstagram, FaMapMarkerAlt } from 'react-icons/fa'
 
 const Contacto = () => {
   return (
@@ -10,39 +11,55 @@ const Contacto = () => {
         Enlace directo con el cuartel general de Diamond Dogs Ctes.
       </p>
 
-      <div className="bg-[#2C3E2F] p-6 rounded-lg shadow-lg space-y-6 text-lg text-left">
+      <div className="bg-[#2C3E2F] p-6 rounded-lg shadow-lg space-y-6 text-left text-lg">
         <div>
-          <p className="text-[#C9B037] font-bold">📡 Canal Codificado - WhatsApp</p>
+          <p className="text-[#C9B037] font-bold flex items-center">
+            <FaWhatsapp className="mr-2 text-[#C9B037]" />
+            Canal Codificado - WhatsApp
+          </p>
           <a
             href="https://wa.me/5493794123456"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#a9ff60] hover:underline ml-2 block"
+            aria-label="Enlace a WhatsApp de Diamond Dogs Ctes"
+            title="Contactar por WhatsApp"
+            className="text-[#a9ff60] hover:underline ml-6 block transition-colors duration-200"
           >
             +54 9 379 412-3456
           </a>
         </div>
 
         <div>
-          <p className="text-[#C9B037] font-bold">🛰️ Visual Recon - Instagram</p>
+          <p className="text-[#C9B037] font-bold flex items-center">
+            <FaInstagram className="mr-2 text-[#C9B037]" />
+            Visual Recon - Instagram
+          </p>
           <a
-            href="https://instagram.com/diamonddogs.ctes"
+            href="https://instagram.com/diamond_dogs_ctes"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#a9ff60] hover:underline ml-2 block"
+            aria-label="Enlace al Instagram de Diamond Dogs Ctes"
+            title="Ver Instagram"
+            className="text-[#a9ff60] hover:underline ml-6 block transition-colors duration-200"
           >
-            @diamonddogs.ctes
+            @diamond_dogs_ctes
           </a>
         </div>
 
         <div>
-          <p className="text-[#C9B037] font-bold">📍 Base de Operaciones</p>
-          <p className="text-[#cccccc] ml-2">Corrientes Capital, Argentina</p>
+          <p className="text-[#C9B037] font-bold flex items-center">
+            <FaMapMarkerAlt className="mr-2 text-[#C9B037]" />
+            Base de Operaciones
+          </p>
+          <p className="text-[#cccccc] ml-6">Corrientes Capital, Argentina</p>
         </div>
       </div>
+
+      <p className="mt-8 text-sm text-gray-400 italic text-center">
+        “Estamos listos para desplegarnos. Comunicate con el escuadrón.”
+      </p>
     </section>
   )
 }
 
 export default Contacto
-

@@ -1,56 +1,59 @@
-import React from 'react';
-import { Link } from 'react-router-dom'; // por si usás rutas
+import React from "react";
+import { useNavigate } from "react-router-dom"; // IMPORT
+import SoundOnHover from "./SoundOnHover";
 
 const Home = () => {
+  const navigate = useNavigate(); // hook para navegación
+
+  const handleStartMission = () => {
+    navigate("/loginregister"); // ruta a login/signup, ajustá según tu ruta real
+  };
+
   return (
-    <section className="relative w-full min-h-screen flex flex-col justify-center items-center text-center px-6 overflow-hidden bg-black">
-      {/* Fondo con camuflaje y capa oscura */}
-      <div className="absolute inset-0 bg-[url('/camuflaje.png')] bg-cover opacity-10 z-0" />
-      <div className="absolute inset-0 bg-black bg-opacity-60 z-0" />
+    <main
+      className="relative min-h-screen text-[#c9b037] font-stencil tracking-widest px-6 py-32 flex flex-col justify-center items-center bg-no-repeat bg-center bg-repeat"
+      style={{
+        backgroundImage: "url('/images/snake_home.jpg')",
+        filter: "brightness(0.9)",
+      }}
+    >
+      <div className="absolute inset-0 bg-black opacity-75 pointer-events-none z-0"></div>
 
-      {/* Contenido */}
-      <div className="relative z-10 max-w-3xl animate-fade-in-up">
-        <h2 className="text-4xl md:text-5xl font-bold text-yellow-400 tracking-widest mb-4 font-stencil">
-          BIENVENIDOS A DIAMOND DOGS CTES
-        </h2>
-        <p className="text-gray-300 text-lg md:text-xl mb-6">
-          Desde la base en Corrientes, te equipamos con la mejor tecnología de vapeo para tus misiones diarias. 🧪⚔️
-        </p>
+      <SoundOnHover>
+        <section className="relative max-w-4xl text-center mb-20 z-10">
+          <img
+            src="/images/logo.png"
+            alt="Logo Diamond Dogs"
+            className="h-36 mx-auto mb-10 drop-shadow-[0_0_10px_rgba(201,176,55,0.8)] animate-fade-in-up"
+          />
+          <h1 className="text-5xl sm:text-6xl font-extrabold mb-6 uppercase drop-shadow-[0_0_12px_rgba(201,176,55,0.9)] animate-fade-in-up-delay">
+            Diamond Dogs
+          </h1>
+          <p className="text-lg sm:text-xl mb-4 text-[#f9f9d1] italic animate-fade-in-up-delay">
+            Base Central: Corrientes, Argentina
+          </p>
+          <p className="text-md sm:text-lg mb-10 text-[#f9f9d1]">
+            Equipando a los soldados del vapeo con{" "}
+            <span className="text-[#c9b037] font-bold">
+              arsenal de última generación
+            </span>
+            . Tecnología, estilo y precisión: tu próxima misión empieza acá. 🧪⚔️
+          </p>
+        </section>
 
-        <Link
-          to="/productos"
-          className="inline-block bg-yellow-400 text-black font-bold px-6 py-3 rounded-full shadow-lg hover:bg-yellow-300 transition"
-        >
-          Ver Arsenal
-        </Link>
-      </div>
-
-      {/* Tarjetas tácticas */}
-      <div className="relative z-10 mt-14 flex flex-wrap justify-center gap-8 max-w-5xl animate-fade-in-up-delay">
-        {[
-          {
-            titulo: "Vape Gear",
-            texto: "Equipamiento descartable y recargable para misiones prolongadas.",
-          },
-          {
-            titulo: "Soporte táctico",
-            texto: "Siempre listos para cubrir tus necesidades en el campo.",
-          },
-          {
-            titulo: "Reabastecimiento rápido",
-            texto: "Envíos express en Corrientes y alrededores.",
-          },
-        ].map((item, index) => (
-          <div
-            key={index}
-            className="bg-[#2e3b2f] border border-gray-700 hover:border-yellow-400 p-6 rounded-xl shadow-lg w-72 transition-all"
+        <section className="relative max-w-4xl text-center flex flex-col gap-y-12 z-10">
+          <button
+            onClick={handleStartMission} // asigno el evento
+            className="bg-[#c9b037] text-[#0a0a0a] font-bold uppercase tracking-widest py-3 px-8 rounded-lg shadow-lg hover:bg-[#d0b94a] transition-colors duration-300 animate-fade-in-up"
           >
-            <h3 className="text-white font-semibold text-xl mb-2">{item.titulo}</h3>
-            <p className="text-sm text-gray-400">{item.texto}</p>
-          </div>
-        ))}
-      </div>
-    </section>
+            Iniciar misión
+          </button>
+          <button className="border-2 border-[#c9b037] text-[#c9b037] font-bold uppercase tracking-widest py-3 px-8 rounded-lg shadow-lg hover:bg-[#c9b037] hover:text-[#0a0a0a] transition-colors duration-300 animate-fade-in-up-delay">
+            Solicitar reabastecimiento
+          </button>
+        </section>
+      </SoundOnHover>
+    </main>
   );
 };
 

@@ -1,81 +1,129 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react'
+import { createClient } from '@supabase/supabase-js'
+import { useCart } from '../context/CartContext' // Importamos el hook
 
-const productos = [
-  {
-    id: 1,
-    nombre: "Vape X",
-    descripcion: "Vape recargable con sabores intensos",
-    precio: "$1500",
-    imagen: "/img/vape1.jpg",
-    sabores: ["Menta", "Frutilla"],
-    colores: ["Negro", "Dorado"]
-  },
-  {
-    id: 2,
-    nombre: "Vape Y",
-    descripcion: "Modelo compacto y elegante",
-    precio: "$1200",
-    imagen: "/img/vape2.jpg",
-    sabores: ["Durazno", "Manzana"],
-    colores: ["Blanco", "Azul"]
-  }
-];
+const supabaseUrl = 'https://ucpsmyivlobcaayxvcjc.supabase.co'
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjcHNteWl2bG9iY2FheXh2Y2pjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyMjMxNzEsImV4cCI6MjA2NDc5OTE3MX0.GDSAbpVbD9EA2o9rEdSpybJ5Wn4RlZ7k_UOaGmP79a0'
+
+const supabase = createClient(supabaseUrl, supabaseKey)
 
 const Productos = () => {
+  const [productos, setProductos] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  const { addToCart } = useCart() // Usamos el hook
+
+  useEffect(() => {
+    const fetchProductos = async () => {
+      setLoading(true)
+      const { data, error } = await supabase.from('productos').select('*')
+
+      if (error) {
+        console.error('Error trayendo productos:', error)
+      } else {
+        setProductos(data)
+      }
+      setLoading(false)
+    }
+
+    fetchProductos()
+  }, [])
+
   const handleWhatsApp = (productoNombre) => {
-    const phone = '5493718652061'; // reemplazá con tu número real
-    const message = `Hola! Quiero comprar el producto: ${productoNombre}`;
-    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
-  };
+    const phone = '54937918652061' // tu número real
+    const message = `Hola! Quiero comprar el producto: ${productoNombre}`
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
+    window.open(url, '_blank')
+  }
+
+  if (loading)
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#0a0a0a] text-[#c9b037] font-stencil tracking-widest">
+        <p className="animate-pulse text-xl uppercase">Cargando productos...</p>
+      </div>
+    )
+
+  if (!productos.length)
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#0a0a0a] text-[#c9b037] font-stencil tracking-widest">
+        <p className="text-xl uppercase">No hay productos para mostrar.</p>
+      </div>
+    )
 
   return (
-    <section className="max-w-6xl mx-auto mt-12 px-6" id="productos">
-      <h2 className="text-3xl font-extrabold text-[#C9B037] tracking-wider uppercase text-center mb-10">
-        Arsenal de Productos
+    <section className="relative min-h-screen bg-[#0a0a0a] px-8 py-12 font-stencil text-[#c9b037] tracking-widest">
+      {/* Overlay radar animado tipo iDroid */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        <div className="absolute top-1/2 left-1/2 w-[400px] h-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#c9b037] opacity-20 animate-pulse-radar"></div>
+        <div
+          className="absolute top-1/2 left-1/2 w-[600px] h-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#c9b037] opacity-10 animate-pulse-radar"
+          style={{ animationDelay: '1.5s' }}
+        ></div>
+      </div>
+
+      <h2 className="relative text-4xl uppercase mb-12 text-[#f9f9d1] text-center drop-shadow-[0_0_6px_rgba(201,176,55,0.9)]">
+        ARSENAL DE PRODUCTOS
       </h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {productos.map(producto => (
+      <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 max-w-7xl mx-auto">
+        {productos.map((producto) => (
           <div
             key={producto.id}
-            className="bg-[#2C3E2F] border border-[#C9B037] rounded-xl p-4 shadow-md text-white hover:scale-105 transition-transform duration-300"
+            className="bg-[#1c1c1c] border-2 border-[#c9b037] rounded-lg shadow-lg p-6 flex flex-col items-center hover:scale-[1.04] transition-transform duration-300"
           >
             <img
               src={producto.imagen}
               alt={producto.nombre}
-              className="w-full h-40 object-cover rounded-md mb-4 border border-gray-700"
+              className="w-full h-44 object-cover rounded-md border border-[#7a6e1d] mb-4"
             />
-            <h3 className="text-xl font-bold text-[#C9B037]">{producto.nombre}</h3>
-            <p className="text-sm text-gray-300 italic">{producto.descripcion}</p>
-            <p className="mt-2 text-[#a9ff60] font-semibold">{producto.precio}</p>
+            <h3 className="text-xl font-bold mb-2 text-[#f9f9d1] tracking-widest">
+              {producto.nombre}
+            </h3>
+            <p className="text-sm italic text-[#d9d7a1] mb-3 text-center whitespace-pre-wrap">
+              {producto.descripcion}
+            </p>
+            <p className="text-lg font-extrabold mb-4 text-[#c9b037]">{producto.precio}</p>
 
-            <ul className="text-sm text-gray-400 mt-2">
+            <ul className="text-sm text-[#d9d7a1] mb-4 space-y-1 w-full">
               {producto.sabores && (
                 <li>
-                  <span className="font-semibold text-white">Sabores:</span>{' '}
-                  {producto.sabores.join(', ')}
+                  <span className="font-semibold text-[#f9f9d1]">Sabores:</span>{' '}
+                  {Array.isArray(producto.sabores)
+                    ? producto.sabores.join(', ')
+                    : producto.sabores}
                 </li>
               )}
               {producto.colores && (
                 <li>
-                  <span className="font-semibold text-white">Colores:</span>{' '}
-                  {producto.colores.join(', ')}
+                  <span className="font-semibold text-[#f9f9d1]">Colores:</span>{' '}
+                  {Array.isArray(producto.colores)
+                    ? producto.colores.join(', ')
+                    : producto.colores}
                 </li>
               )}
             </ul>
 
             <button
               onClick={() => handleWhatsApp(producto.nombre)}
-              className="mt-4 w-full bg-[#C9B037] text-black font-bold py-2 rounded hover:bg-yellow-500 transition"
+              className="w-full bg-[#c9b037] hover:bg-[#a69125] text-[#0a0a0a] font-bold py-2 rounded-md shadow-lg tracking-widest transition-colors duration-200 select-none"
+              aria-label={`Añadir ${producto.nombre} al arsenal`}
             >
-              Añadir al arsenal
+              AÑADIR AL ARSENAL
+            </button>
+
+            {/* Botón para agregar al carrito */}
+            <button
+              onClick={() => addToCart(producto)}
+              className="w-full mt-2 bg-transparent border border-[#c9b037] text-[#c9b037] hover:bg-[#c9b037] hover:text-[#0a0a0a] font-bold py-2 rounded-md shadow-md tracking-widest transition-all duration-200 select-none"
+              aria-label={`Agregar ${producto.nombre} al carrito`}
+            >
+              AGREGAR AL CARRITO
             </button>
           </div>
         ))}
       </div>
     </section>
-  );
-};
+  )
+}
 
-export default Productos;
+export default Productos

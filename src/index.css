@@ -1,3 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Estilos globales iDROID */
+body {
+  @apply bg-idroid-bg text-idroid-textMain font-sans;
+}
+
+/* Títulos */
+h1, h2, h3, h4 {
+  @apply font-stencil text-idroid-textHeading tracking-widest;
+}
+
+/* Botones */
+.btn-idroid {
+  @apply bg-idroid-accent text-black font-bold px-5 py-2 rounded-full shadow-md hover:bg-idroid-accentHover transition;
+}
+
+/* Tarjetas */
+.card-idroid {
+  @apply bg-idroid-surface border border-idroid-border p-6 rounded-xl shadow-lg text-idroid-textMain hover:border-idroid-accent transition-all;
+}

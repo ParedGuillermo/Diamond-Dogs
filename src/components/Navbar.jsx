@@ -1,44 +1,59 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 
-const Navbar = () => {
+const Navbar = ({ user, onLogout }) => {
+  const tabs = [
+    { name: 'Mother Base', to: '/' },
+    { name: 'Arsenal', to: '/productos' },
+    { name: 'Codecs', to: '/contacto' },
+    { name: 'Misión', to: '/nosotros' },
+    { name: 'Big Boss', to: '/admin', requireAdmin: true },
+    { name: 'Mi Perfil', to: '/perfil', requireAuth: true },
+    { name: 'Iniciar Misión', to: '/loginregister', hideIfAuth: true },
+  ]
+
   return (
-    <nav className="w-full px-6 py-4 bg-black border-b-2 border-yellow-400 flex justify-between items-center shadow-md relative z-10">
-      <div className="flex items-center gap-2">
-        <span className="w-4 h-4 bg-yellow-400 rounded-full animate-pulse"></span>
-        <Link to="/" className="text-yellow-400 text-2xl font-stencil tracking-widest uppercase">
-          Diamond Dogs
-        </Link>
-      </div>
+    <nav className="w-full fixed top-0 left-0 bg-[#00FFFF] bg-opacity-90 backdrop-blur-md z-50">
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-2">
+        {/* Navigation Links */}
+        <div className="flex flex-1 justify-center gap-1">
+          {tabs.map(({ name, to, requireAdmin, requireAuth, hideIfAuth }) => {
+            // Filtrar según el estado del usuario
+            if (requireAdmin && user?.role !== 'admin') return null
+            if (requireAuth && !user) return null
+            if (hideIfAuth && user) return null
 
-      <ul className="flex gap-6 text-white text-lg font-stencil tracking-wide uppercase">
-        <li className="relative group">
-          <Link to="/productos" className="hover:text-yellow-400 transition duration-200">
-            Productos
-          </Link>
-          <div className="absolute left-0 -bottom-1 w-full h-[2px] bg-yellow-400 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
-        </li>
-        <li className="relative group">
-          <Link to="/nosotros" className="hover:text-yellow-400 transition duration-200">
-            Nosotros
-          </Link>
-          <div className="absolute left-0 -bottom-1 w-full h-[2px] bg-yellow-400 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
-        </li>
-        <li className="relative group">
-          <Link to="/contacto" className="hover:text-yellow-400 transition duration-200">
-            Contacto
-          </Link>
-          <div className="absolute left-0 -bottom-1 w-full h-[2px] bg-yellow-400 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
-        </li>
-        <li className="relative group">
-          <Link to="/admin" className="hover:text-yellow-400 transition duration-200">
-            Admin
-          </Link>
-          <div className="absolute left-0 -bottom-1 w-full h-[2px] bg-yellow-400 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
-        </li>
-      </ul>
+            return (
+              <NavLink
+                key={to}
+                to={to}
+                className={({ isActive }) =>
+                  `text-center py-2 px-3 uppercase font-stencil font-semibold tracking-wider transition-colors ${
+                    isActive
+                      ? 'text-black bg-idroid-accent'
+                      : 'text-white hover:text-idroid-accent'
+                  }`
+                }
+              >
+                {name}
+              </NavLink>
+            )
+          })}
+        </div>
+
+        {/* Logout Button */}
+        {user && (
+          <button
+            onClick={onLogout}
+            className="ml-4 bg-idroid-accent text-black font-stencil font-semibold px-3 py-1 rounded hover:bg-idroid-accentHover transition-colors"
+            aria-label="Cerrar sesión"
+          >
+            Logout
+          </button>
+        )}
+      </div>
     </nav>
   )
 }
 
-export default Navbar // ← ESTA LÍNEA ES CLAVE
+export default Navbar

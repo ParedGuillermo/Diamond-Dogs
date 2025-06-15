@@ -1,199 +1,97 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { MGSTheme } from '../theme/mgs-theme';
-import { playSound } from '../assets/sounds/sounds';
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginRegister() {
-  const [isLogin, setIsLogin] = useState(true);
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    codename: ''
-  });
-  const [error, setError] = useState('');
-  const { login, register } = useAuth();
+  const { signIn, signUp, user, loading, signOut } = useAuth();
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [mode, setMode] = useState("login"); // login o register
+  const [error, setError] = useState(null);
+  const [message, setMessage] = useState(null);
+
+  useEffect(() => {
+    if (user) {
+      // Si hay usuario logueado, redirigir a "/"
+      navigate("/");
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    playSound('beep');
-    
-    try {
-      if (isLogin) {
-        await login(formData.email, formData.password);
-      } else {
-        await register(formData.email, formData.password, formData.codename);
-      }
-      navigate('/');
-    } catch (err) {
-      setError(err.message);
-      playSound('alert');
+    setError(null);
+    setMessage(null);
+
+    if (!email || !password) {
+      setError("Email y contraseña son obligatorios.");
+      return;
+    }
+
+    if (mode === "login") {
+      const { error } = await signIn(email.trim(), password);
+      if (error) setError(error.message);
+      else setMessage("Ingreso exitoso!");
+    } else {
+      const { error } = await signUp(email.trim(), password);
+      if (error) setError(error.message);
+      else setMessage("Registro exitoso! Revisa tu correo para confirmar.");
     }
   };
 
+  if (loading) return <p>Cargando...</p>;
+
+  if (user)
+    return (
+      <div>
+        <p>Bienvenido, {user.email}</p>
+        <button onClick={signOut}>Cerrar sesión</button>
+      </div>
+    );
+
   return (
-    <div style={{
-      background: `linear-gradient(rgba(15, 15, 15, 0.9), rgba(15, 15, 15, 0.9))`,
-      minHeight: '100vh',
-      padding: '20px',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      fontFamily: MGSTheme.fonts.body
-    }}>
-      <div style={{
-        border: `2px solid ${MGSTheme.colors.diamond}`,
-        borderRadius: '8px',
-        padding: '30px',
-        width: '100%',
-        maxWidth: '400px',
-        background: 'rgba(42, 58, 47, 0.8)',
-        boxShadow: `0 0 15px ${MGSTheme.colors.diamond}`
-      }}>
-        <h2 style={{
-          color: MGSTheme.colors.hud,
-          textAlign: 'center',
-          marginBottom: '30px',
-          borderBottom: `1px dashed ${MGSTheme.colors.diamond}`,
-          paddingBottom: '10px'
-        }}>
-          {isLogin ? '[ ACCESO A MOTHER BASE ]' : '[ NUEVO RECLUTA ]'}
-        </h2>
+    <div className="max-w-md p-4 mx-auto">
+      <h2 className="mb-4 text-2xl">{mode === "login" ? "Ingresar" : "Registrarse"}</h2>
 
-        {error && (
-          <div style={{
-            color: '#FF3333',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            padding: '10px',
-            marginBottom: '20px',
-            borderRadius: '4px',
-            border: '1px solid #FF3333'
-          }}>
-            ⚠️ {error}
-          </div>
-        )}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <input
+          type="email"
+          placeholder="Correo electrónico"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className="p-2 border rounded"
+        />
+        <input
+          type="password"
+          placeholder="Contraseña"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className="p-2 border rounded"
+        />
+        <button type="submit" className="p-2 text-white bg-blue-600 rounded">
+          {mode === "login" ? "Ingresar" : "Registrarse"}
+        </button>
+      </form>
 
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{
-              display: 'block',
-              color: MGSTheme.colors.hud,
-              marginBottom: '8px'
-            }}>
-              FREQUENCY (EMAIL):
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              style={inputStyle}
-              onFocus={() => playSound('hover')}
-            />
-          </div>
+      {error && <p className="mt-2 text-red-600">{error}</p>}
+      {message && <p className="mt-2 text-green-600">{message}</p>}
 
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{
-              display: 'block',
-              color: MGSTheme.colors.hud,
-              marginBottom: '8px'
-            }}>
-              PASSWORD:
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              style={inputStyle}
-              onFocus={() => playSound('hover')}
-            />
-          </div>
-
-          {!isLogin && (
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{
-                display: 'block',
-                color: MGSTheme.colors.hud,
-                marginBottom: '8px'
-              }}>
-                CODENAME:
-              </label>
-              <input
-                type="text"
-                name="codename"
-                value={formData.codename}
-                onChange={handleChange}
-                required
-                style={inputStyle}
-                onFocus={() => playSound('hover')}
-              />
-            </div>
-          )}
-
-          <button
-            type="submit"
-            style={{
-              ...buttonStyle,
-              backgroundColor: MGSTheme.colors.diamond
-            }}
-            onMouseEnter={() => playSound('hover')}
-          >
-            {isLogin ? '[ ACCEDER ]' : '[ REGISTRAR ]'}
-          </button>
-        </form>
-
+      <p className="mt-4 text-center">
+        {mode === "login" ? "No tenés cuenta? " : "Ya tenés cuenta? "}
         <button
           onClick={() => {
-            playSound('beep');
-            setIsLogin(!isLogin);
-            setError('');
+            setError(null);
+            setMessage(null);
+            setMode(mode === "login" ? "register" : "login");
           }}
-          style={{
-            ...buttonStyle,
-            marginTop: '15px',
-            backgroundColor: 'transparent',
-            border: `1px solid ${MGSTheme.colors.hud}`
-          }}
-          onMouseEnter={() => playSound('hover')}
+          className="text-blue-600 underline"
         >
-          {isLogin ? '[ ¿NUEVO RECLUTA? ]' : '[ ¿YA TIENES CUENTA? ]'}
+          {mode === "login" ? "Registrate" : "Ingresá"}
         </button>
-      </div>
+      </p>
     </div>
   );
 }
-
-const inputStyle = {
-  width: '100%',
-  padding: '12px',
-  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  border: `1px solid ${MGSTheme.colors.hud}`,
-  color: MGSTheme.colors.text,
-  fontFamily: '"Courier New", monospace',
-  borderRadius: '4px'
-};
-
-const buttonStyle = {
-  width: '100%',
-  padding: '12px',
-  color: 'white',
-  border: 'none',
-  borderRadius: '4px',
-  cursor: 'pointer',
-  fontFamily: '"Agency FB", sans-serif',
-  fontSize: '16px',
-  fontWeight: 'bold',
-  transition: 'all 0.3s ease'
-};

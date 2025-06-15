@@ -1,24 +1,7 @@
-/* @tailwind directives removed because Tailwind CSS is not being processed */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Colores base inspirados en MGS V */
-:root {
-  --mgs-bg: #0b0e0b; /* casi negro con tinte verde */
-  --mgs-text-main: #a6d608; /* verde neón típico */
-  --mgs-text-secondary: #8a9a5b; /* verde oliva grisáceo */
-  --mgs-text-heading: #dbe8b6; /* verde claro */
-  --mgs-accent: #c6d73f; /* amarillo verdoso */
-  --mgs-accent-hover: #e5f05e;
-  --mgs-surface: #1c2220; /* verde oscuro opaco */
-  --mgs-border: #506040; /* verde militar apagado */
-}
-
-/* Estilos globales MGS V TPP */
 body {
-  background-color: var(--mgs-bg);
-  color: var(--mgs-text-main);
-  font-family: 'stencil', monospace, sans-serif;
-  letter-spacing: 0.1em;
+  @apply bg-black text-white;
 }

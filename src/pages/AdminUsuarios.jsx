@@ -3,14 +3,15 @@ import { supabase } from "../supabaseClient";
 import { useAuth } from "../context/AuthContext";
 
 export default function AdminUsuarios() {
-  const { user, userData } = useAuth();
+  const { user } = useAuth();  // Solo user, no userData
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editUser, setEditUser] = useState(null);
   const [formData, setFormData] = useState({});
 
   useEffect(() => {
-    if (!userData || userData.nivel < 10) return;
+    // Control de acceso por email
+    if (!user || user.email !== "walterguillermopared@gmail.com") return;
 
     const fetchUsuarios = async () => {
       const { data, error } = await supabase.from("usuarios").select("*");
@@ -24,7 +25,7 @@ export default function AdminUsuarios() {
     };
 
     fetchUsuarios();
-  }, [userData]);
+  }, [user]);
 
   const handleEditClick = (usuario) => {
     setEditUser(usuario);
@@ -55,12 +56,14 @@ export default function AdminUsuarios() {
     } else {
       alert("Usuario actualizado correctamente");
       setEditUser(null);
+      // Refrescar lista de usuarios
       const { data } = await supabase.from("usuarios").select("*");
       setUsuarios(data);
     }
   };
 
-  if (!userData || userData.nivel < 10) {
+  // Control de acceso: si el usuario no es el autorizado, mostramos mensaje
+  if (!user || user.email !== "walterguillermopared@gmail.com") {
     return (
       <div className="p-10 text-lg text-center text-red-600">
         No tenés permisos para acceder a esta sección.
@@ -97,7 +100,8 @@ export default function AdminUsuarios() {
                       name="nombre"
                       value={formData.nombre}
                       onChange={handleChange}
-                      className="w-full px-2 py-1 border rounded"
+                      className="w-full px-2 py-1 text-black bg-white border border-gray-400 rounded"
+                      style={{ outlineColor: "#2563eb" }}
                     />
                   </td>
                   <td className="p-2">
@@ -105,7 +109,8 @@ export default function AdminUsuarios() {
                       name="apellido"
                       value={formData.apellido}
                       onChange={handleChange}
-                      className="w-full px-2 py-1 border rounded"
+                      className="w-full px-2 py-1 text-black bg-white border border-gray-400 rounded"
+                      style={{ outlineColor: "#2563eb" }}
                     />
                   </td>
                   <td className="p-2">
@@ -113,7 +118,8 @@ export default function AdminUsuarios() {
                       name="apodo"
                       value={formData.apodo || ""}
                       onChange={handleChange}
-                      className="w-full px-2 py-1 border rounded"
+                      className="w-full px-2 py-1 text-black bg-white border border-gray-400 rounded"
+                      style={{ outlineColor: "#2563eb" }}
                     />
                   </td>
                   <td className="p-2">{u.correo}</td>
@@ -122,7 +128,8 @@ export default function AdminUsuarios() {
                       name="telefono"
                       value={formData.telefono}
                       onChange={handleChange}
-                      className="w-full px-2 py-1 border rounded"
+                      className="w-full px-2 py-1 text-black bg-white border border-gray-400 rounded"
+                      style={{ outlineColor: "#2563eb" }}
                     />
                   </td>
                   <td className="p-2">
@@ -131,7 +138,8 @@ export default function AdminUsuarios() {
                       name="nivel"
                       value={formData.nivel}
                       onChange={handleChange}
-                      className="w-full px-2 py-1 border rounded"
+                      className="w-full px-2 py-1 text-black bg-white border border-gray-400 rounded"
+                      style={{ outlineColor: "#2563eb" }}
                     />
                   </td>
                   <td className="p-2">
@@ -140,7 +148,8 @@ export default function AdminUsuarios() {
                       name="puntos"
                       value={formData.puntos}
                       onChange={handleChange}
-                      className="w-full px-2 py-1 border rounded"
+                      className="w-full px-2 py-1 text-black bg-white border border-gray-400 rounded"
+                      style={{ outlineColor: "#2563eb" }}
                     />
                   </td>
                   <td className="p-2">
@@ -148,7 +157,8 @@ export default function AdminUsuarios() {
                       name="suscripcion"
                       value={formData.suscripcion}
                       onChange={handleChange}
-                      className="w-full px-2 py-1 border rounded"
+                      className="w-full px-2 py-1 text-black bg-white border border-gray-400 rounded"
+                      style={{ outlineColor: "#2563eb" }}
                     >
                       <option value="Aspirante">Aspirante</option>
                       <option value="Diamond">Diamond</option>
@@ -157,13 +167,13 @@ export default function AdminUsuarios() {
                   <td className="p-2">
                     <button
                       onClick={handleSave}
-                      className="px-3 py-1 mr-2 text-white bg-green-600 rounded"
+                      className="px-3 py-1 mr-2 text-white transition bg-green-600 rounded hover:bg-green-700"
                     >
                       Guardar
                     </button>
                     <button
                       onClick={() => setEditUser(null)}
-                      className="px-3 py-1 text-white bg-gray-400 rounded"
+                      className="px-3 py-1 text-white transition bg-gray-400 rounded hover:bg-gray-500"
                     >
                       Cancelar
                     </button>
@@ -182,7 +192,7 @@ export default function AdminUsuarios() {
                   <td className="p-2">
                     <button
                       onClick={() => handleEditClick(u)}
-                      className="px-3 py-1 text-white bg-blue-600 rounded"
+                      className="px-3 py-1 text-white transition bg-blue-600 rounded hover:bg-blue-700"
                     >
                       Editar
                     </button>

@@ -1,120 +1,100 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
+import { CartContext } from "../assets/context/CartContext";
+import ProductModal from "../components/ProductModal";
 
 export default function Productos() {
   const [productos, setProductos] = useState([]);
-  const [categorias, setCategorias] = useState([]);
-  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("");
-  const [busqueda, setBusqueda] = useState("");
   const [loading, setLoading] = useState(true);
+  const [productoSeleccionado, setProductoSeleccionado] = useState(null);
+  const { agregarAlCarrito } = useContext(CartContext);
 
-  // Traer categorías únicas
-  const fetchCategorias = async () => {
-    const { data, error } = await supabase
-      .from("productos")
-      .select("categoria");
-
-    if (error) {
-      console.error("Error trayendo categorías:", error);
-    } else {
-      // Categorías únicas usando Set para evitar duplicados
-      const catsUnicos = [...new Set(data.map((item) => item.categoria))];
-      setCategorias(catsUnicos);
-    }
-  };
-
-  // Traer productos filtrados
   const fetchProductos = async () => {
     setLoading(true);
-
-    let query = supabase.from("productos").select("*");
-
-    if (categoriaSeleccionada) {
-      query = query.eq("categoria", categoriaSeleccionada);
-    }
-
-    if (busqueda) {
-      query = query.ilike("nombre", `%${busqueda}%`);
-    }
-
-    const { data, error } = await query;
+    const { data, error } = await supabase.from("productos").select("*");
 
     if (error) {
       console.error("Error trayendo productos:", error);
-    } else {
-      setProductos(data);
+      setProductos([]);
+      setLoading(false);
+      return;
     }
 
+    const productosConFoto = data.map((producto) => ({
+      ...producto,
+      fotoUrl: Array.isArray(producto.fotos) ? producto.fotos[0] : null,
+    }));
+
+    setProductos(productosConFoto);
     setLoading(false);
   };
 
   useEffect(() => {
-    fetchCategorias();
+    fetchProductos();
   }, []);
 
-  useEffect(() => {
-    fetchProductos();
-  }, [categoriaSeleccionada, busqueda]);
-
   return (
-    <div className="max-w-5xl p-6 mx-auto">
-      <h1 className="mb-6 text-3xl font-bold">Productos</h1>
+    <div className="max-w-6xl min-h-screen p-6 mx-auto font-rajdhani bg-mgsv-bg text-mgsv-text">
+      <h1 className="mb-8 text-4xl font-extrabold tracking-widest uppercase text-yellow-400 border-b border-yellow-600 pb-4 text-center font-orbitron drop-shadow-[0_0_10px_#FFD93B]">
+        Catálogo Táctico
+      </h1>
 
-      {/* Filtros */}
-      <div className="flex gap-4 mb-6">
-        {/* Select categorías */}
-        <select
-          className="p-2 border rounded"
-          value={categoriaSeleccionada}
-          onChange={(e) => setCategoriaSeleccionada(e.target.value)}
-        >
-          <option value="">Todas las categorías</option>
-          {categorias.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
-          ))}
-        </select>
-
-        {/* Input búsqueda nombre */}
-        <input
-          type="text"
-          placeholder="Buscar producto por nombre..."
-          className="flex-grow p-2 border rounded"
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-        />
-      </div>
-
-      {/* Listado productos */}
       {loading ? (
-        <p>Cargando productos...</p>
+        <p className="text-center text-yellow-300">Cargando productos...</p>
       ) : productos.length === 0 ? (
-        <p>No se encontraron productos.</p>
+        <p className="text-center text-yellow-500">No se encontraron productos.</p>
       ) : (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          {productos.map((producto) => (
-            <div
-              key={producto.id}
-              className="p-4 transition border rounded shadow hover:shadow-lg"
-            >
-              {producto.fotos && producto.fotos.length > 0 && (
-                <img
-                  src={producto.fotos[0]}
-                  alt={producto.nombre}
-                  className="object-cover w-full h-40 mb-4 rounded"
-                />
-              )}
-              <h2 className="mb-2 text-xl font-semibold">{producto.nombre}</h2>
-              <p className="mb-2 text-sm">{producto.descripcion}</p>
-              <p className="mb-1 font-bold">${producto.precio.toFixed(2)}</p>
-              <p className="text-xs text-gray-500">Stock: {producto.stock}</p>
-              <p className="mt-1 text-xs italic text-gray-600">
-                Categoría: {producto.categoria}
-              </p>
-            </div>
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+            {productos.map((producto) => (
+              <div
+                key={producto.id}
+                className="p-4 transition-shadow border border-yellow-600 rounded-lg shadow-md cursor-pointer bg-mgsv-card hover:shadow-lg"
+                onClick={() => setProductoSeleccionado(producto)}
+              >
+                {producto.fotoUrl && (
+                  <img
+                    src={producto.fotoUrl}
+                    alt={producto.nombre}
+                    className="object-cover w-full h-48 mb-4 border border-yellow-600 rounded"
+                  />
+                )}
+                <h2 className="mb-2 text-xl font-bold tracking-wide text-yellow-300 uppercase">
+                  {producto.nombre}
+                </h2>
+                <p className="mb-2 text-sm text-gray-300 whitespace-pre-line">
+                  {producto.descripcion || "Sin descripción"}
+                </p>
+                <p className="font-bold text-yellow-400">
+                  Precio: <span className="text-mgsv-text">${Number(producto.precio).toFixed(2)}</span>
+                </p>
+                <p className="text-sm text-gray-400">Stock: {producto.stock ?? 0}</p>
+                <p className="mt-1 text-sm italic text-gray-500">
+                  Categoría: {producto.categoria || "Sin categoría"}
+                </p>
+                <p className="mt-1 text-sm text-gray-500">Sabores: {producto.sabores || "N/A"}</p>
+                <p className="mt-1 text-sm text-gray-500">Colores: {producto.colores || "N/A"}</p>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    agregarAlCarrito(producto);
+                  }}
+                  className="w-full py-2 mt-4 font-bold tracking-wide text-black uppercase transition bg-yellow-400 rounded hover:bg-yellow-300"
+                >
+                  Agregar al carrito
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {productoSeleccionado && (
+            <ProductModal
+              producto={productoSeleccionado}
+              onClose={() => setProductoSeleccionado(null)}
+            />
+          )}
+        </>
       )}
     </div>
   );

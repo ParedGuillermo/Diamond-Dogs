@@ -3,5 +3,32 @@
 @tailwind utilities;
 
 body {
-  @apply text-white bg-black;
+  background-color: #0b0f0a;
+  font-family: 'Roboto Mono', monospace;
+  color: #f0f0f0;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  font-family: 'Rubik Mono One', sans-serif;
+  font-weight: 700;
+  color: #2a7f37; /* verde militar */
+  text-shadow: 0 0 8px #2a7f37;
+}
+
+button.cerrar-sesion {
+  background-color: #6b8e23; /* verde oliva */
+  color: #f0f0f0;
+  padding: 12px 24px;
+  border: 2px solid #c1440e; /* borde rojo */
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-transform: uppercase;
+}
+
+button.cerrar-sesion:hover {
+  background-color: #8fbf4f; /* verde lima */
+  box-shadow: 0 0 10px #c1440e;
 }

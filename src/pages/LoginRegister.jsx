@@ -1,22 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { useAuth } from "../context/AuthContext";
+import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
 
 export default function LoginRegister() {
-  const { signIn, signUp, user, loading, signOut } = useAuth();
-  const navigate = useNavigate();
-
+  const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [mode, setMode] = useState("login"); // login o register
+  const [nombre, setNombre] = useState("");
+  const [apellido, setApellido] = useState("");
+  const [apodo, setApodo] = useState("");
+  const [telefono, setTelefono] = useState("");
+
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
+  const [user, setUser] = useState(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
-      // Si hay usuario logueado, redirigir a "/"
-      navigate("/");
-    }
+    if (user) navigate("/");
   }, [user, navigate]);
 
   const handleSubmit = async (e) => {
@@ -24,35 +26,82 @@ export default function LoginRegister() {
     setError(null);
     setMessage(null);
 
-    if (!email || !password) {
+    if (!email.trim() || !password) {
       setError("Email y contraseña son obligatorios.");
       return;
     }
 
-    if (mode === "login") {
-      const { error } = await signIn(email.trim(), password);
-      if (error) setError(error.message);
-      else setMessage("Ingreso exitoso!");
-    } else {
-      const { error } = await signUp(email.trim(), password);
-      if (error) setError(error.message);
-      else setMessage("Registro exitoso! Revisa tu correo para confirmar.");
+    if (mode === "register" && (!nombre.trim() || !apellido.trim())) {
+      setError("Nombre y apellido son obligatorios.");
+      return;
+    }
+
+    try {
+      if (mode === "login") {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        });
+
+        if (error) throw error;
+
+        setUser(data.user);
+        setMessage("Ingreso exitoso!");
+        limpiarCampos();
+      } else {
+        const { data, error } = await supabase.auth.signUp({
+          email: email.trim(),
+          password,
+        });
+
+        if (error) throw error;
+
+        if (!data.user) {
+          setError("No se pudo crear el usuario.");
+          return;
+        }
+
+        const { id } = data.user;
+
+        const { error: insertError } = await supabase.from("usuarios").insert([
+          {
+            id,
+            correo: email.trim(),
+            nombre: nombre.trim(),
+            apellido: apellido.trim(),
+            apodo: apodo?.trim() || null,
+            telefono: telefono?.trim() || null,
+          },
+        ]);
+
+        if (insertError) throw insertError;
+
+        setMessage("Registro exitoso! Revisa tu correo para confirmar tu cuenta.");
+        limpiarCampos();
+      }
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Error inesperado. Revisá la consola.");
     }
   };
 
-  if (loading) return <p>Cargando...</p>;
+  const limpiarCampos = () => {
+    setEmail("");
+    setPassword("");
+    setNombre("");
+    setApellido("");
+    setApodo("");
+    setTelefono("");
+  };
 
-  if (user)
-    return (
-      <div>
-        <p>Bienvenido, {user.email}</p>
-        <button onClick={signOut}>Cerrar sesión</button>
-      </div>
-    );
+  const inputClass =
+    "p-2 placeholder-gray-500 border border-yellow-600 bg-mgsv-card text-mgsv-text rounded focus:outline-none focus:ring-2 focus:ring-yellow-400";
 
   return (
-    <div className="max-w-md p-4 mx-auto">
-      <h2 className="mb-4 text-2xl">{mode === "login" ? "Ingresar" : "Registrarse"}</h2>
+    <div className="max-w-md p-6 mx-auto mt-12 border border-yellow-600 rounded-lg shadow-md bg-mgsv-bg font-rajdhani text-mgsv-text">
+      <h2 className="mb-6 text-3xl text-center uppercase font-orbitron tracking-widest text-yellow-400 drop-shadow-[0_0_10px_#FFD93B]">
+        {mode === "login" ? "Ingreso táctico" : "Alta en escuadrón"}
+      </h2>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
@@ -61,7 +110,7 @@ export default function LoginRegister() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="p-2 border rounded"
+          className={inputClass}
         />
         <input
           type="password"
@@ -69,25 +118,64 @@ export default function LoginRegister() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          className="p-2 border rounded"
+          className={inputClass}
         />
-        <button type="submit" className="p-2 text-white bg-blue-600 rounded">
-          {mode === "login" ? "Ingresar" : "Registrarse"}
+        {mode === "register" && (
+          <>
+            <input
+              type="text"
+              placeholder="Nombre"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              required
+              className={inputClass}
+            />
+            <input
+              type="text"
+              placeholder="Apellido"
+              value={apellido}
+              onChange={(e) => setApellido(e.target.value)}
+              required
+              className={inputClass}
+            />
+            <input
+              type="text"
+              placeholder="Apodo (opcional)"
+              value={apodo}
+              onChange={(e) => setApodo(e.target.value)}
+              className={inputClass}
+            />
+            <input
+              type="tel"
+              placeholder="Teléfono (opcional)"
+              value={telefono}
+              onChange={(e) => setTelefono(e.target.value)}
+              className={inputClass}
+            />
+          </>
+        )}
+
+        <button
+          type="submit"
+          className="p-2 font-bold tracking-widest text-black uppercase transition-all bg-yellow-400 rounded hover:bg-yellow-300"
+        >
+          {mode === "login" ? "Iniciar misión" : "Registrarse"}
         </button>
       </form>
 
-      {error && <p className="mt-2 text-red-600">{error}</p>}
-      {message && <p className="mt-2 text-green-600">{message}</p>}
+      {error && <p className="mt-3 text-sm text-center text-red-500">{error}</p>}
+      {message && <p className="mt-3 text-sm text-center text-green-400">{message}</p>}
 
-      <p className="mt-4 text-center">
-        {mode === "login" ? "No tenés cuenta? " : "Ya tenés cuenta? "}
+      <p className="mt-6 text-sm text-center text-mgsv-text">
+        {mode === "login" ? "¿No estás enlistado? " : "¿Ya sos parte del escuadrón? "}
         <button
           onClick={() => {
             setError(null);
             setMessage(null);
             setMode(mode === "login" ? "register" : "login");
           }}
-          className="text-blue-600 underline"
+          className="font-semibold text-yellow-300 underline hover:text-yellow-200"
+          type="button"
         >
           {mode === "login" ? "Registrate" : "Ingresá"}
         </button>

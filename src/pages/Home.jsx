@@ -1,93 +1,123 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import RadarEffect from "../components/RadarEffect";
-import ProductCard from "../components/ProductCard";
-import RankSystem from "../components/RankSystem";
-import DiamondPromo from "../components/DiamondPromo";
-import Footer from "../components/Footer";
-
-import snakeImg from "../assets/images/snake.png";
+import logo from "../assets/images/logo-dd.png";
+import { supabase } from "../supabaseClient";
 
 export default function Home() {
-  const { user, signOut, userData } = useAuth();
-  const [showSnake, setShowSnake] = useState(window.innerWidth > 768);
+  const { user, signOut } = useAuth();
+  const [productos, setProductos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const whatsappNumber = "5493718652061";
 
   useEffect(() => {
-    const handleResize = () => {
-      setShowSnake(window.innerWidth > 768);
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    async function fetchProductos() {
+      setLoading(true);
+      const { data, error } = await supabase.from("productos").select("*");
+      if (error) {
+        console.error("Error cargando productos:", error);
+        setLoading(false);
+        return;
+      }
+      const shuffled = data.sort(() => 0.5 - Math.random());
+      setProductos(shuffled.slice(0, 3));
+      setLoading(false);
+    }
+    fetchProductos();
   }, []);
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen p-4 overflow-hidden bg-mgsv-bg">
-      {/* Contenedor para Radar e Imagen Snake lado a lado en desktop */}
-      <div className="relative z-10 flex flex-col items-center justify-between w-full max-w-6xl px-4 md:flex-row">
-        {/* Radar a la izquierda */}
-        <div className="mb-8 w-72 h-72 md:w-96 md:h-96 md:mb-0">
-          <RadarEffect />
-        </div>
-
-        {/* Imagen Snake a la derecha (solo desktop) */}
-        {showSnake && (
-          <img
-            src={snakeImg}
-            alt="Snake"
-            className="hidden pointer-events-none select-none md:block w-72 md:w-96 opacity-15"
-          />
-        )}
+    <div className="relative flex flex-col items-center justify-center min-h-screen px-6 py-12 overflow-hidden select-none bg-mgsv-bg text-mgsv-text font-rajdhani">
+      {/* Radar de fondo */}
+      <div className="absolute inset-0 -z-10 opacity-10">
+        <RadarEffect />
       </div>
 
-      {/* Hero principal */}
-      <div className="relative z-10 w-full max-w-xl mt-10 text-center">
-        <h1 className="text-4xl tracking-widest text-white font-stencil drop-shadow-md">
-          Bienvenido a <span className="text-mgsv-red">Diamond Dogs</span>
+      {/* Logo */}
+      <header className="z-10 w-full max-w-xl text-center">
+        <img
+          src={logo}
+          alt="Diamond Dogs Logo"
+          className="mx-auto mb-6 w-24 drop-shadow-[0_0_12px_rgba(255,217,59,0.8)]"
+        />
+
+        <h1 className="text-5xl md:text-6xl font-anton text-mgsv-text drop-shadow-[0_0_10px_#FFD93B] mb-6 tracking-wide">
+          DIAMOND DOGS Ctes
         </h1>
+
+        <p className="mb-8 text-lg md:text-xl text-[#e2e2c0] tracking-wide">
+          Tecnología de vapeo con estilo táctico y precisión militar.
+        </p>
 
         {user ? (
           <>
-            <p className="mt-4 text-lg text-mgsv-text font-poppins">
-              ¡Bienvenido, <span className="font-bold text-white">{user.email}</span>!
+            <p className="mb-4 text-sm tracking-widest uppercase">
+              Usuario: <span className="text-yellow-400">{user.email}</span>
             </p>
             <button
               onClick={signOut}
-              className="px-6 py-3 mt-4 font-bold text-white uppercase rounded shadow-md bg-mgsv-red hover:bg-mgsv-red-hover"
+              className="px-8 py-3 font-bold tracking-wider text-black uppercase transition bg-yellow-400 border-2 border-yellow-400 rounded hover:bg-yellow-300 hover:shadow-lg"
             >
-              Cerrar sesión
+              Cerrar Sesión
             </button>
           </>
         ) : (
           <button
             onClick={() => (window.location.href = "/login")}
-            className="px-6 py-3 mt-6 font-bold tracking-wide text-white uppercase rounded shadow-md bg-mgsv-red hover:bg-mgsv-red-hover"
+            className="px-10 py-3 text-black text-sm md:text-base font-bold tracking-wider uppercase bg-yellow-400 border-2 border-yellow-400 rounded hover:bg-yellow-300 hover:shadow-[0_0_14px_#FFD93B] transition"
           >
             Iniciar Misión
           </button>
         )}
-      </div>
+      </header>
 
-      {/* Productos */}
-      <section className="z-10 flex flex-wrap justify-center w-full max-w-6xl gap-6 px-4 mt-12">
-        <ProductCard />
-        <ProductCard />
-        <ProductCard />
+      {/* Productos Destacados */}
+      <section className="z-10 w-full max-w-5xl mt-20">
+        <h2 className="mb-6 text-3xl font-semibold tracking-wide text-center text-yellow-400">
+          Productos Destacados
+        </h2>
+
+        {loading ? (
+          <p className="text-center text-gray-500">Cargando productos...</p>
+        ) : (
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+            {productos.map((prod) => {
+              const text = encodeURIComponent(`Hola! Quiero comprar el producto: ${prod.nombre}`);
+              const waLink = `https://wa.me/${whatsappNumber}?text=${text}`;
+
+              return (
+                <div
+                  key={prod.id}
+                  className="flex flex-col items-center p-4 border border-yellow-400 rounded-lg shadow-lg bg-mgsv-card"
+                >
+                  <img
+                    src={prod.imagen_url}
+                    alt={prod.nombre}
+                    className="object-cover w-full h-48 mb-3 rounded-md"
+                  />
+                  <h3 className="mb-1 text-lg font-bold text-yellow-300">{prod.nombre}</h3>
+                  <p className="mb-2 text-sm text-center text-gray-300">{prod.descripcion}</p>
+                  <p className="mb-4 text-lg font-semibold text-yellow-400">${prod.precio}</p>
+
+                  <a
+                    href={waLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 font-semibold text-black transition bg-yellow-400 rounded hover:bg-yellow-300"
+                  >
+                    Comprar Ahora
+                  </a>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </section>
 
-      {/* Rangos */}
-      <div className="z-10 w-full max-w-md mt-16">
-        <RankSystem userLevel={userData?.nivel || 0} />
-      </div>
-
-      {/* Promo */}
-      <div className="z-10 w-full max-w-xl mt-16">
-        <DiamondPromo />
-      </div>
-
       {/* Footer */}
-      <div className="z-10 w-full mt-20">
-        <Footer />
-      </div>
+      <footer className="fixed bottom-0 left-0 right-0 p-3 text-xs text-center text-[#888] bg-[#0a0a0a] border-t border-yellow-400 tracking-wide">
+        © 2025 Diamond Dogs. Todos los derechos reservados.
+      </footer>
     </div>
   );
 }

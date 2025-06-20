@@ -19,21 +19,26 @@ export default function Home() {
         setLoading(false);
         return;
       }
-      const shuffled = data.sort(() => 0.5 - Math.random());
+
+      const productosConFoto = data.map((prod) => ({
+        ...prod,
+        fotoUrl: Array.isArray(prod.fotos) ? prod.fotos[0] : null,
+      }));
+
+      const shuffled = productosConFoto.sort(() => 0.5 - Math.random());
       setProductos(shuffled.slice(0, 3));
       setLoading(false);
     }
+
     fetchProductos();
   }, []);
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen px-6 py-12 overflow-hidden select-none bg-mgsv-bg text-mgsv-text font-rajdhani">
-      {/* Radar de fondo */}
       <div className="absolute inset-0 -z-10 opacity-10">
         <RadarEffect />
       </div>
 
-      {/* Logo */}
       <header className="z-10 w-full max-w-xl text-center">
         <img
           src={logo}
@@ -62,16 +67,24 @@ export default function Home() {
             </button>
           </>
         ) : (
-          <button
-            onClick={() => (window.location.href = "/login")}
-            className="px-10 py-3 text-black text-sm md:text-base font-bold tracking-wider uppercase bg-yellow-400 border-2 border-yellow-400 rounded hover:bg-yellow-300 hover:shadow-[0_0_14px_#FFD93B] transition"
-          >
-            Iniciar Misión
-          </button>
+          <>
+            <button
+              onClick={() => (window.location.href = "/login")}
+              className="mb-3 px-10 py-3 text-black text-sm md:text-base font-bold tracking-wider uppercase bg-yellow-400 border-2 border-yellow-400 rounded hover:bg-yellow-300 hover:shadow-[0_0_14px_#FFD93B] transition"
+            >
+              Iniciar Misión
+            </button>
+
+            <button
+              onClick={() => (window.location.href = "/productos")}
+              className="px-10 py-3 text-black text-sm md:text-base font-bold tracking-wider uppercase bg-yellow-400 border-2 border-yellow-400 rounded hover:bg-yellow-300 hover:shadow-[0_0_14px_#FFD93B] transition"
+            >
+              Arsenal
+            </button>
+          </>
         )}
       </header>
 
-      {/* Productos Destacados */}
       <section className="z-10 w-full max-w-5xl mt-20">
         <h2 className="mb-6 text-3xl font-semibold tracking-wide text-center text-yellow-400">
           Productos Destacados
@@ -90,11 +103,13 @@ export default function Home() {
                   key={prod.id}
                   className="flex flex-col items-center p-4 border border-yellow-400 rounded-lg shadow-lg bg-mgsv-card"
                 >
-                  <img
-                    src={prod.imagen_url}
-                    alt={prod.nombre}
-                    className="object-cover w-full h-48 mb-3 rounded-md"
-                  />
+                  {prod.fotoUrl && (
+                    <img
+                      src={prod.fotoUrl}
+                      alt={prod.nombre}
+                      className="object-cover w-full h-48 mb-3 border border-yellow-400 rounded-md"
+                    />
+                  )}
                   <h3 className="mb-1 text-lg font-bold text-yellow-300">{prod.nombre}</h3>
                   <p className="mb-2 text-sm text-center text-gray-300">{prod.descripcion}</p>
                   <p className="mb-4 text-lg font-semibold text-yellow-400">${prod.precio}</p>
@@ -114,7 +129,6 @@ export default function Home() {
         )}
       </section>
 
-      {/* Footer */}
       <footer className="fixed bottom-0 left-0 right-0 p-3 text-xs text-center text-[#888] bg-[#0a0a0a] border-t border-yellow-400 tracking-wide">
         © 2025 Diamond Dogs. Todos los derechos reservados.
       </footer>

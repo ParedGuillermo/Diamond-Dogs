@@ -1,14 +1,17 @@
 import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { X, ShoppingCart } from "lucide-react";
-import { CartContext } from "../assets/context/CartContext"; // ajustá la ruta si hace falta
-import CartDrawer from "./CartDrawer"; // asegurate de tener este componente
+import { CartContext } from "../assets/context/CartContext";
+import { useAuth } from "../context/AuthContext"; // ⬅️ importado para verificar el usuario
+import CartDrawer from "./CartDrawer";
 
 export default function SidebarLeft({ isOpen, setIsOpen }) {
   const { carrito } = useContext(CartContext);
-  const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
-
+  const { user } = useAuth(); // ⬅️ Obtenemos el usuario actual
   const [mostrarCarrito, setMostrarCarrito] = useState(false);
+
+  const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
+  const adminEmail = "walterguillermopared@gmail.com"; // ⬅️ reemplazalo con tu email real
 
   return (
     <>
@@ -37,14 +40,18 @@ export default function SidebarLeft({ isOpen, setIsOpen }) {
             Productos
           </Link>
 
-          {/* Solo muestra Panel Admin si el usuario tiene email autorizado */}
-          <Link to="/admin" onClick={() => setIsOpen(false)} className="hover:underline">
-            Panel Admin
-          </Link>
-          
-          <Link to="/adminproductos" onClick={() => setIsOpen(false)} className="hover:underline">
-            Cargar Productos
-          </Link>
+          {/* ✅ Secciones visibles solo para el admin */}
+          {user?.email === adminEmail && (
+            <>
+              <Link to="/admin" onClick={() => setIsOpen(false)} className="hover:underline">
+                Panel Admin
+              </Link>
+
+              <Link to="/adminproductos" onClick={() => setIsOpen(false)} className="hover:underline">
+                Cargar Productos
+              </Link>
+            </>
+          )}
 
           {/* Icono carrito */}
           <button

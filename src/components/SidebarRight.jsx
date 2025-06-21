@@ -13,6 +13,11 @@ export default function SidebarRight({ isOpen, setIsOpen }) {
     setIsOpen(false);
   };
 
+  const handleVerPerfil = () => {
+    navigate("/mi-perfil");
+    setIsOpen(false); // Cierra el menú al navegar
+  };
+
   return (
     <div
       className={`fixed top-0 right-0 h-full w-64 bg-black text-yellow-300 z-40 transform transition-transform duration-300 ${
@@ -37,23 +42,30 @@ export default function SidebarRight({ isOpen, setIsOpen }) {
               <span className="text-sm text-yellow-500">
                 Sesión: {user.email}
               </span>
+
+              {/* ✅ Botón para ver el perfil */}
+              <button
+                onClick={handleVerPerfil}
+                className="px-4 py-2 text-black bg-yellow-400 rounded hover:bg-yellow-300"
+              >
+                Ver Perfil
+              </button>
+
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 mt-2 text-black bg-yellow-400 rounded hover:bg-yellow-300"
+                className="px-4 py-2 mt-1 text-black bg-yellow-400 rounded hover:bg-yellow-300"
               >
                 Cerrar sesión
               </button>
             </>
           ) : (
-            <>
-              <Link
-                to="/login"
-                onClick={() => setIsOpen(false)}
-                className="px-4 py-2 text-center text-black bg-yellow-400 rounded hover:bg-yellow-300"
-              >
-                Iniciar sesión
-              </Link>
-            </>
+            <Link
+              to="/login"
+              onClick={() => setIsOpen(false)}
+              className="px-4 py-2 text-center text-black bg-yellow-400 rounded hover:bg-yellow-300"
+            >
+              Iniciar sesión
+            </Link>
           )}
         </div>
       ) : (

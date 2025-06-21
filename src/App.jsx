@@ -9,7 +9,15 @@ import AdminUsuarios from "./pages/AdminUsuarios";
 import Productos from "./pages/Productos";
 import AdminProductos from "./pages/AdminProductos";
 
-import { CartProvider } from "./assets/context/CartContext";  // <-- ruta corregida
+// Páginas nuevas
+import GuiaRecluta from "./pages/GuiaRecluta";
+import QueEsVapear from "./pages/GuiaDelRecluta/QueEsVapear";
+import ComoEmpezar from "./pages/GuiaDelRecluta/ComoEmpezar";
+import VapersIniciales from "./pages/GuiaDelRecluta/VapersIniciales";
+import ErroresComunes from "./pages/GuiaDelRecluta/ErroresComunes";
+import MiPerfil from "./pages/MiPerfil"; // <-- Agregada
+
+import { CartProvider } from "./assets/context/CartContext";
 
 export default function App() {
   return (
@@ -20,10 +28,27 @@ export default function App() {
             <Route path="/login" element={<LoginRegister />} />
             <Route path="/productos" element={<Productos />} />
 
-            {/* Inicio público, sin protección */}
+            {/* Ruta nueva Guía del Recluta */}
+            <Route path="/guia-del-recluta" element={<GuiaRecluta />} />
+            <Route path="/guia-del-recluta/que-es-vapear" element={<QueEsVapear />} />
+            <Route path="/guia-del-recluta/como-empezar" element={<ComoEmpezar />} />
+            <Route path="/guia-del-recluta/vapers-iniciales" element={<VapersIniciales />} />
+            <Route path="/guia-del-recluta/errores-comunes" element={<ErroresComunes />} />
+
+            {/* Nueva ruta protegida: Mi Perfil */}
+            <Route
+              path="/mi-perfil"
+              element={
+                <ProtectedRoute>
+                  <MiPerfil />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Inicio público */}
             <Route path="/" element={<Home />} />
 
-            {/* Rutas protegidas */}
+            {/* Admin */}
             <Route
               path="/admin"
               element={

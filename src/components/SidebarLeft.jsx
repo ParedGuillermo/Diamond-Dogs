@@ -40,6 +40,11 @@ export default function SidebarLeft({ isOpen, setIsOpen }) {
             Productos
           </Link>
 
+          {/* Acá sumamos el link nuevo */}
+          <Link to="/guia-del-recluta" onClick={() => setIsOpen(false)} className="font-semibold text-yellow-400 hover:underline">
+            Guía del Aspirante
+          </Link>
+
           {/* ✅ Secciones visibles solo para el admin */}
           {user?.email === adminEmail && (
             <>

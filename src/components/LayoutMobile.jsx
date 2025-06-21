@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import NavbarMobile from "./NavbarMobile";
 import SidebarLeft from "./SidebarLeft";
 import SidebarRight from "./SidebarRight";
+import Footer from "./Footer"; // ✅ Importación del nuevo footer
 
 export default function LayoutMobile({ children }) {
   const [leftOpen, setLeftOpen] = useState(false);
@@ -32,10 +33,8 @@ export default function LayoutMobile({ children }) {
       {/* Contenido principal con padding para header y footer */}
       <main className="flex-1 px-4 pt-12 pb-16 overflow-auto">{children}</main>
 
-      {/* Footer */}
-      <footer className="fixed bottom-0 left-0 right-0 p-3 text-xs text-center text-gray-400 bg-gray-900 select-none">
-        © 2025 Diamond Dogs. Todos los derechos reservados.
-      </footer>
+      {/* ✅ Footer mejorado */}
+      <Footer />
     </div>
   );
 }

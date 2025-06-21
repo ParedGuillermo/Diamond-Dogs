@@ -51,35 +51,36 @@ export default function Home() {
         </h1>
 
         <p className="mb-8 text-lg md:text-xl text-[#e2e2c0] tracking-wide">
-          Tecnología de vapeo con estilo táctico y precisión militar.
+          Equipá tu arsenal con tecnología de vapeo de precisión táctica.
+          Convertite en un verdadero profesional del vapeo con estilo militar y sigilo total.
         </p>
 
         {user ? (
           <>
             <p className="mb-4 text-sm tracking-widest uppercase">
-              Usuario: <span className="text-yellow-400">{user.email}</span>
+              Operador activo: <span className="text-yellow-400">{user.email}</span>
             </p>
             <button
               onClick={signOut}
               className="px-8 py-3 font-bold tracking-wider text-black uppercase transition bg-yellow-400 border-2 border-yellow-400 rounded hover:bg-yellow-300 hover:shadow-lg"
             >
-              Cerrar Sesión
+              Terminar misión
             </button>
           </>
         ) : (
           <>
             <button
-              onClick={() => (window.location.href = "/login")}
+              onClick={() => (window.location.href = "/productos")}
               className="mb-3 px-10 py-3 text-black text-sm md:text-base font-bold tracking-wider uppercase bg-yellow-400 border-2 border-yellow-400 rounded hover:bg-yellow-300 hover:shadow-[0_0_14px_#FFD93B] transition"
             >
-              Iniciar Misión
+              Acceder al arsenal
             </button>
 
             <button
-              onClick={() => (window.location.href = "/productos")}
+              onClick={() => (window.location.href = "/guia-del-recluta")}
               className="px-10 py-3 text-black text-sm md:text-base font-bold tracking-wider uppercase bg-yellow-400 border-2 border-yellow-400 rounded hover:bg-yellow-300 hover:shadow-[0_0_14px_#FFD93B] transition"
             >
-              Arsenal
+              Instructivo para el Aspirante
             </button>
           </>
         )}

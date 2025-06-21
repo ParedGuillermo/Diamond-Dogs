@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import RadarEffect from "../components/RadarEffect";
 import logo from "../assets/images/logo-dd.png";
 import { supabase } from "../supabaseClient";
+import { Instagram, Facebook, MessageCircle } from "lucide-react";
 
 export default function Home() {
   const { user, signOut } = useAuth();
@@ -32,6 +33,41 @@ export default function Home() {
 
     fetchProductos();
   }, []);
+
+  // Componente para links sociales
+  function SocialLinks() {
+    return (
+      <section className="flex justify-center gap-12 mt-16 mb-12">
+        <a
+          href="https://www.instagram.com/diamond_dogs_ctes"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Instagram"
+          className="text-yellow-400 transition hover:text-yellow-300"
+        >
+          <Instagram size={36} />
+        </a>
+        <a
+          href="https://www.facebook.com/DiamondDogsCtes"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Facebook"
+          className="text-yellow-400 transition hover:text-yellow-300"
+        >
+          <Facebook size={36} />
+        </a>
+        <a
+          href="https://chat.whatsapp.com/LCCF0t611dPAVHnGH9G6xn"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Comunidad WhatsApp"
+          className="text-yellow-400 transition hover:text-yellow-300"
+        >
+          <MessageCircle size={36} />
+        </a>
+      </section>
+    );
+  }
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen px-6 py-12 overflow-hidden select-none bg-mgsv-bg text-mgsv-text font-rajdhani">
@@ -130,8 +166,10 @@ export default function Home() {
         )}
       </section>
 
+      {/* Redes sociales */}
+      <SocialLinks />
+
       <footer className="fixed bottom-0 left-0 right-0 p-3 text-xs text-center text-[#888] bg-[#0a0a0a] border-t border-yellow-400 tracking-wide">
-        © 2025 Diamond Dogs. Todos los derechos reservados.
       </footer>
     </div>
   );

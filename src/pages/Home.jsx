@@ -4,6 +4,7 @@ import RadarEffect from "../components/RadarEffect";
 import logo from "../assets/images/logo-dd.png";
 import { supabase } from "../supabaseClient";
 import { Instagram, Facebook, MessageCircle } from "lucide-react";
+import BannerSorteo from "../components/BannerSorteo"; // <-- Import del banner
 
 export default function Home() {
   const { user, signOut } = useAuth();
@@ -122,6 +123,9 @@ export default function Home() {
         )}
       </header>
 
+      {/* Banner del sorteo */}
+      <BannerSorteo />
+
       <section className="z-10 w-full max-w-5xl mt-20">
         <h2 className="mb-6 text-3xl font-semibold tracking-wide text-center text-yellow-400">
           Productos Destacados
@@ -169,8 +173,7 @@ export default function Home() {
       {/* Redes sociales */}
       <SocialLinks />
 
-      <footer className="fixed bottom-0 left-0 right-0 p-3 text-xs text-center text-[#888] bg-[#0a0a0a] border-t border-yellow-400 tracking-wide">
-      </footer>
+      <footer className="fixed bottom-0 left-0 right-0 p-3 text-xs text-center text-[#888] bg-[#0a0a0a] border-t border-yellow-400 tracking-wide"></footer>
     </div>
   );
 }

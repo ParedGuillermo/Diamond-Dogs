@@ -14,6 +14,7 @@ export default function AdminProductos() {
     sabores: "",
     colores: "",
     categoria: "",
+    disponibilidad: "en_stock",  // <-- agregué esto con valor por defecto
     imagen: null,
   });
   const [editandoId, setEditandoId] = useState(null);
@@ -76,6 +77,7 @@ export default function AdminProductos() {
         sabores: producto.sabores,
         colores: producto.colores,
         categoria: producto.categoria,
+        disponibilidad: producto.disponibilidad,  // <-- agrego disponibilidad aquí
       };
 
       if (imagenURL) {
@@ -107,6 +109,7 @@ export default function AdminProductos() {
         sabores: "",
         colores: "",
         categoria: "",
+        disponibilidad: "en_stock", // reset con valor por defecto
         imagen: null,
       });
       setEditandoId(null);
@@ -142,6 +145,7 @@ export default function AdminProductos() {
       sabores: p.sabores || "",
       colores: p.colores || "",
       categoria: p.categoria || "",
+      disponibilidad: p.disponibilidad || "en_stock",  // <-- precargo disponibilidad
       imagen: null,
     });
     setEditandoId(p.id);
@@ -203,6 +207,17 @@ export default function AdminProductos() {
           rows={4}
         />
 
+        {/* Select para disponibilidad */}
+        <select
+          name="disponibilidad"
+          value={producto.disponibilidad}
+          onChange={handleChange}
+          className="p-2 border border-yellow-500 rounded bg-mgsv-card text-mgsv-text focus:outline-none focus:ring-2 focus:ring-yellow-400"
+        >
+          <option value="en_stock">En Stock</option>
+          <option value="a_pedido">A Pedido</option>
+        </select>
+
         <input
           type="file"
           name="imagen"
@@ -233,6 +248,7 @@ export default function AdminProductos() {
                   sabores: "",
                   colores: "",
                   categoria: "",
+                  disponibilidad: "en_stock", // reset también acá
                   imagen: null,
                 });
               }}
@@ -258,6 +274,9 @@ export default function AdminProductos() {
                 className="object-cover w-full h-40 mt-2 rounded"
               />
             )}
+            <p className="mt-1 text-sm italic text-gray-400">
+              Disponibilidad: {p.disponibilidad === "en_stock" ? "En Stock" : "A Pedido"}
+            </p>
             <div className="flex flex-wrap gap-2 mt-4">
               <button
                 onClick={() => handleEdit(p)}

@@ -4,7 +4,7 @@ import RadarEffect from "../components/RadarEffect";
 import logo from "../assets/images/logo-dd.png";
 import { supabase } from "../supabaseClient";
 import { Instagram, Facebook, MessageCircle } from "lucide-react";
-import BannerSorteo from "../components/BannerSorteo"; // <-- Import del banner
+import BannerSorteo from "../components/BannerSorteo";
 
 export default function Home() {
   const { user, signOut } = useAuth();
@@ -27,6 +27,7 @@ export default function Home() {
         fotoUrl: Array.isArray(prod.fotos) ? prod.fotos[0] : null,
       }));
 
+      // Mezclamos y mostramos sólo 3 productos destacados
       const shuffled = productosConFoto.sort(() => 0.5 - Math.random());
       setProductos(shuffled.slice(0, 3));
       setLoading(false);
@@ -35,7 +36,6 @@ export default function Home() {
     fetchProductos();
   }, []);
 
-  // Componente para links sociales
   function SocialLinks() {
     return (
       <section className="flex justify-center gap-12 mt-16 mb-12">
@@ -88,8 +88,10 @@ export default function Home() {
         </h1>
 
         <p className="mb-8 text-lg md:text-xl text-[#e2e2c0] tracking-wide">
-          Equipá tu arsenal con tecnología de vapeo de precisión táctica.
-          Convertite en un verdadero profesional del vapeo con estilo militar y sigilo total.
+          Vendemos vapeo con la modalidad de inventario mixto: algunos productos
+          en stock para entrega rápida, otros bajo pedido directo a fábrica.
+          Inspirado en el modelo de Amazon en sus inicios, te damos la
+          confianza y transparencia para tu compra táctica.
         </p>
 
         {user ? (
@@ -110,14 +112,14 @@ export default function Home() {
               onClick={() => (window.location.href = "/productos")}
               className="mb-3 px-10 py-3 text-black text-sm md:text-base font-bold tracking-wider uppercase bg-yellow-400 border-2 border-yellow-400 rounded hover:bg-yellow-300 hover:shadow-[0_0_14px_#FFD93B] transition"
             >
-              Acceder al arsenal
+              Explorar el arsenal
             </button>
 
             <button
               onClick={() => (window.location.href = "/guia-del-recluta")}
               className="px-10 py-3 text-black text-sm md:text-base font-bold tracking-wider uppercase bg-yellow-400 border-2 border-yellow-400 rounded hover:bg-yellow-300 hover:shadow-[0_0_14px_#FFD93B] transition"
             >
-              Instructivo para el Aspirante
+              Manual del Aspirante
             </button>
           </>
         )}
@@ -136,8 +138,14 @@ export default function Home() {
         ) : (
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             {productos.map((prod) => {
-              const text = encodeURIComponent(`Hola! Quiero comprar el producto: ${prod.nombre}`);
-              const waLink = `https://wa.me/${whatsappNumber}?text=${text}`;
+              const mensaje =
+                prod.disponibilidad === "a_pedido"
+                  ? `Hola! Quiero hacer un pedido del producto: ${prod.nombre}${
+                      prod.sabores ? ` (sabor: ${prod.sabores})` : ""
+                    }`
+                  : `Hola! Quiero comprar el producto: ${prod.nombre}`;
+
+              const waLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(mensaje)}`;
 
               return (
                 <div
@@ -161,7 +169,7 @@ export default function Home() {
                     rel="noopener noreferrer"
                     className="px-4 py-2 font-semibold text-black transition bg-yellow-400 rounded hover:bg-yellow-300"
                   >
-                    Comprar Ahora
+                    {prod.disponibilidad === "a_pedido" ? "Hacer pedido" : "Comprar Ahora"}
                   </a>
                 </div>
               );
@@ -170,10 +178,9 @@ export default function Home() {
         )}
       </section>
 
-      {/* Redes sociales */}
       <SocialLinks />
 
-      <footer className="fixed bottom-0 left-0 right-0 p-3 text-xs text-center text-[#888] bg-[#0a0a0a] border-t border-yellow-400 tracking-wide"></footer>
+      <footer className="fixed bottom-0 left-0 right-0 p-3 text-xs text-center text-[#888] bg-[#0a0a0a] border-t border-yellow-400 tracking-wide" />
     </div>
   );
 }

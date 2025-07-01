@@ -36,7 +36,6 @@ export default function Productos() {
     fetchProductos();
   }, []);
 
-  // Filtro aplicado por nombre y categoría
   const productosFiltrados = productos.filter((producto) => {
     const coincideNombre = producto.nombre.toLowerCase().includes(searchTerm.toLowerCase());
     const coincideCategoria =
@@ -44,7 +43,6 @@ export default function Productos() {
     return coincideNombre && coincideCategoria;
   });
 
-  // Sacar categorías únicas
   const categoriasUnicas = ["Todos", ...new Set(productos.map((p) => p.categoria).filter(Boolean))];
 
   return (
@@ -52,6 +50,18 @@ export default function Productos() {
       <h1 className="mb-8 text-4xl font-extrabold tracking-widest uppercase text-yellow-400 border-b border-yellow-600 pb-4 text-center font-orbitron drop-shadow-[0_0_10px_#FFD93B]">
         Catálogo Táctico
       </h1>
+
+      {/* Banner explicativo sobre modelo mixto */}
+      <div className="max-w-3xl p-4 mx-auto mb-8 font-semibold text-center text-yellow-300 bg-yellow-900 border border-yellow-600 rounded bg-opacity-20">
+        <p>
+          Nuestro catálogo combina productos en stock con artículos disponibles bajo pedido, 
+          inspirado en el modelo de inicio de Amazon. Esto nos permite ofrecer una mayor variedad 
+          sin necesidad de mantener un inventario extenso, garantizando precios competitivos y 
+          atención personalizada. <br />
+          Para productos bajo pedido, al hacer clic en "Hacer pedido" te llevaremos a WhatsApp 
+          para coordinar la compra directamente con nuestro equipo.
+        </p>
+      </div>
 
       {/* Buscador y Filtro */}
       <div className="flex flex-col gap-4 mb-8 md:flex-row md:items-center md:justify-between">
@@ -112,15 +122,29 @@ export default function Productos() {
                 <p className="mt-1 text-sm text-gray-500">Sabores: {producto.sabores || "N/A"}</p>
                 <p className="mt-1 text-sm text-gray-500">Colores: {producto.colores || "N/A"}</p>
 
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    agregarAlCarrito(producto);
-                  }}
-                  className="w-full py-2 mt-4 font-bold tracking-wide text-black uppercase transition bg-yellow-400 rounded hover:bg-yellow-300"
-                >
-                  Agregar al carrito
-                </button>
+                {producto.disponibilidad === "en_stock" ? (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      agregarAlCarrito(producto);
+                    }}
+                    className="w-full py-2 mt-4 font-bold tracking-wide text-black uppercase transition bg-yellow-400 rounded hover:bg-yellow-300"
+                  >
+                    Agregar al carrito
+                  </button>
+                ) : (
+                  <a
+                    href={`https://wa.me/5493718652061?text=${encodeURIComponent(
+                      `Hola, quiero hacer un pedido del producto: ${producto.nombre}.\nSabor: ${producto.sabores || "No especificado"}`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="block w-full py-2 mt-4 font-bold text-center text-black uppercase transition bg-green-400 rounded hover:bg-green-300"
+                  >
+                    Hacer pedido
+                  </a>
+                )}
               </div>
             ))}
           </div>

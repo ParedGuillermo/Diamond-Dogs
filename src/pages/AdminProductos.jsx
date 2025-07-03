@@ -15,8 +15,9 @@ export default function AdminProductos() {
     colores: "",
     categoria: "",
     disponibilidad: "en_stock",
-    imagenes: [],  // array para varias imágenes
+    imagenes: [],  // array para nuevas imágenes a subir
   });
+  const [imagenesActuales, setImagenesActuales] = useState([]); // fotos actuales del producto
   const [editandoId, setEditandoId] = useState(null);
   const [subiendo, setSubiendo] = useState(false);
   const [productos, setProductos] = useState([]);
@@ -56,11 +57,11 @@ export default function AdminProductos() {
       const fileName = `${Date.now()}_${contador++}_${file.name}`;
       const { error: uploadError } = await supabase.storage
         .from("productos")
-        .upload(fileName, file, { upsert: true });  // <-- clave para evitar error 400
+        .upload(fileName, file, { upsert: true });
 
       if (uploadError) {
         console.error("Error subiendo imagen:", uploadError);
-        continue; // seguir con las demás
+        continue;
       }
 
       const { data, error: urlError } = supabase.storage
@@ -82,7 +83,15 @@ export default function AdminProductos() {
     e.preventDefault();
     setSubiendo(true);
     try {
-      const imagenesURLs = await subirImagenes();
+      let imagenesURLs = [];
+
+      if (producto.imagenes && producto.imagenes.length > 0) {
+        // Subo nuevas imágenes si hay
+        imagenesURLs = await subirImagenes();
+      } else if (editandoId) {
+        // Mantengo las imágenes viejas si edito sin subir nuevas
+        imagenesURLs = imagenesActuales;
+      }
 
       const productoData = {
         nombre: producto.nombre,
@@ -93,7 +102,7 @@ export default function AdminProductos() {
         colores: producto.colores,
         categoria: producto.categoria,
         disponibilidad: producto.disponibilidad,
-        fotos: imagenesURLs.length > 0 ? imagenesURLs : [],
+        fotos: imagenesURLs,
       };
 
       let error;
@@ -124,6 +133,7 @@ export default function AdminProductos() {
         disponibilidad: "en_stock",
         imagenes: [],
       });
+      setImagenesActuales([]);
       setEditandoId(null);
       fetchProductos();
     } catch (error) {
@@ -158,8 +168,9 @@ export default function AdminProductos() {
       colores: p.colores || "",
       categoria: p.categoria || "",
       disponibilidad: p.disponibilidad || "en_stock",
-      imagenes: [], // limpio las nuevas imágenes para subir
+      imagenes: [], // limpio nuevas imágenes para subir
     });
+    setImagenesActuales(p.fotos || []); // guardo las fotos actuales para mantenerlas
     setEditandoId(p.id);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -267,6 +278,7 @@ export default function AdminProductos() {
                   disponibilidad: "en_stock",
                   imagenes: [],
                 });
+                setImagenesActuales([]);
               }}
               className="px-4 py-2 font-bold text-white bg-red-600 rounded hover:bg-red-700"
             >

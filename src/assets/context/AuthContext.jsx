@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { supabase } from "../../supabaseClient"; // <-- CAMBIO AQUÍ
+import { supabase } from "../../supabaseClient";
 
 const AuthContext = createContext();
 
@@ -23,8 +23,20 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
+  // Función para cerrar sesión
+  const signOut = async () => {
+    setLoading(true);
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("Error al cerrar sesión:", error.message);
+    } else {
+      setUser(null);
+    }
+    setLoading(false);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, signOut }}>
       {children}
     </AuthContext.Provider>
   );

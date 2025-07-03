@@ -43,7 +43,6 @@ export default function SidebarRight({ isOpen, setIsOpen }) {
                 Sesión: {user.email}
               </span>
 
-              {/* ✅ Botón para ver el perfil */}
               <button
                 onClick={handleVerPerfil}
                 className="px-4 py-2 text-black bg-yellow-400 rounded hover:bg-yellow-300"

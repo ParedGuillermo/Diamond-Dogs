@@ -1,5 +1,5 @@
 import React from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../assets/context/AuthContext";
 import logo from "../assets/images/logo-dd.png";
 
 export default function MiPerfil() {

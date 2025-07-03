@@ -2,16 +2,16 @@ import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { X, ShoppingCart } from "lucide-react";
 import { CartContext } from "../assets/context/CartContext";
-import { useAuth } from "../context/AuthContext"; // ⬅️ importado para verificar el usuario
+import { useAuth } from "../assets/context/AuthContext";
 import CartDrawer from "./CartDrawer";
 
 export default function SidebarLeft({ isOpen, setIsOpen }) {
   const { carrito } = useContext(CartContext);
-  const { user } = useAuth(); // ⬅️ Obtenemos el usuario actual
+  const { user } = useAuth();
   const [mostrarCarrito, setMostrarCarrito] = useState(false);
 
   const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
-  const adminEmail = "walterguillermopared@gmail.com"; // ⬅️ reemplazalo con tu email real
+  const adminEmail = "walterguillermopared@gmail.com"; // ⚠️ Tu email de admin
 
   return (
     <>
@@ -40,12 +40,24 @@ export default function SidebarLeft({ isOpen, setIsOpen }) {
             Productos
           </Link>
 
-          {/* Acá sumamos el link nuevo */}
-          <Link to="/guia-del-recluta" onClick={() => setIsOpen(false)} className="font-semibold text-yellow-400 hover:underline">
+          <Link
+            to="/guia-del-recluta"
+            onClick={() => setIsOpen(false)}
+            className="font-semibold text-yellow-400 hover:underline"
+          >
             Guía del Aspirante
           </Link>
 
-          {/* ✅ Secciones visibles solo para el admin */}
+          {/* Link público para seguimiento de pedidos */}
+          <Link
+            to="/trakeo"
+            onClick={() => setIsOpen(false)}
+            className="hover:underline"
+          >
+            Seguimiento de Pedido
+          </Link>
+
+          {/* 🛡️ Secciones visibles solo para el administrador */}
           {user?.email === adminEmail && (
             <>
               <Link to="/admin" onClick={() => setIsOpen(false)} className="hover:underline">
@@ -55,10 +67,14 @@ export default function SidebarLeft({ isOpen, setIsOpen }) {
               <Link to="/adminproductos" onClick={() => setIsOpen(false)} className="hover:underline">
                 Cargar Productos
               </Link>
+
+              <Link to="/pedidos" onClick={() => setIsOpen(false)} className="hover:underline">
+                Pedidos
+              </Link>
             </>
           )}
 
-          {/* Icono carrito */}
+          {/* 🛒 Botón Carrito */}
           <button
             onClick={() => setMostrarCarrito(true)}
             className="relative flex items-center gap-2 px-3 py-2 mt-4 text-black bg-yellow-400 rounded hover:bg-yellow-300"

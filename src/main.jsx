@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
-import { AuthProvider } from "./context/AuthContext"; // ⚠️ Importá el contexto
+import { AuthProvider } from "./assets/context/AuthContext"; // ⚠️ Importá el contexto
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

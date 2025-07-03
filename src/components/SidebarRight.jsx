@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { X } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../assets/context/AuthContext";
 
 export default function SidebarRight({ isOpen, setIsOpen }) {
   const { user, signOut, loading } = useAuth();

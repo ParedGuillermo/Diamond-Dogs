@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../assets/context/AuthContext";
 
 export default function AdminUsuarios() {
   const { user } = useAuth();

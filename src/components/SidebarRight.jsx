@@ -15,26 +15,28 @@ export default function SidebarRight({ isOpen, setIsOpen }) {
 
   const handleVerPerfil = () => {
     navigate("/mi-perfil");
-    setIsOpen(false); // Cierra el menú al navegar
+    setIsOpen(false);
   };
 
   return (
     <div
-      className={`fixed top-0 right-0 h-full w-64 bg-black text-yellow-300 z-40 transform transition-transform duration-300 ${
+      className={`fixed top-0 right-0 h-full w-64 bg-black text-yellow-300 z-50 transform transition-transform duration-300 ${
         isOpen ? "translate-x-0" : "translate-x-full"
       }`}
     >
+      {/* Encabezado con botón cerrar */}
       <div className="flex items-center justify-between px-4 py-4 border-b border-yellow-400">
         <h2 className="text-xl font-bold">Mi Perfil</h2>
         <button
           onClick={() => setIsOpen(false)}
-          className="text-yellow-400 transition hover:text-red-400"
+          className="p-2 transition rounded-full hover:text-red-400 hover:bg-red-500/10 focus:outline-none focus:ring-2 focus:ring-yellow-400"
           aria-label="Cerrar menú"
         >
-          <X size={24} />
+          <X size={28} className="text-yellow-400" />
         </button>
       </div>
 
+      {/* Contenido */}
       {!loading ? (
         <div className="flex flex-col gap-4 p-4">
           {user ? (

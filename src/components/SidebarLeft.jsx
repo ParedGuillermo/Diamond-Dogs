@@ -11,26 +11,28 @@ export default function SidebarLeft({ isOpen, setIsOpen }) {
   const [mostrarCarrito, setMostrarCarrito] = useState(false);
 
   const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
-  const adminEmail = "walterguillermopared@gmail.com"; // ⚠️ Tu email de admin
+  const adminEmail = "walterguillermopared@gmail.com"; // Tu mail de admin
 
   return (
     <>
       <div
-        className={`fixed top-0 left-0 h-full w-64 bg-black text-yellow-300 z-40 transform transition-transform duration-300 ${
+        className={`fixed top-0 left-0 h-full w-64 bg-black text-yellow-300 z-50 transform transition-transform duration-300 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
+        {/* Encabezado con botón de cierre */}
         <div className="flex items-center justify-between px-4 py-4 border-b border-yellow-400">
           <h2 className="text-xl font-bold">Diamond Dogs</h2>
           <button
             onClick={() => setIsOpen(false)}
-            className="text-yellow-400 transition hover:text-red-400"
+            className="p-2 transition rounded-full hover:text-red-400 hover:bg-red-500/10 focus:outline-none focus:ring-2 focus:ring-yellow-400"
             aria-label="Cerrar menú"
           >
-            <X size={24} />
+            <X size={28} className="text-yellow-400" />
           </button>
         </div>
 
+        {/* Navegación */}
         <nav className="flex flex-col gap-3 p-4">
           <Link to="/" onClick={() => setIsOpen(false)} className="hover:underline">
             Inicio
@@ -48,7 +50,6 @@ export default function SidebarLeft({ isOpen, setIsOpen }) {
             Guía del Aspirante
           </Link>
 
-          {/* Link público para seguimiento de pedidos */}
           <Link
             to="/trakeo"
             onClick={() => setIsOpen(false)}
@@ -57,7 +58,7 @@ export default function SidebarLeft({ isOpen, setIsOpen }) {
             Seguimiento de Pedido
           </Link>
 
-          {/* 🛡️ Secciones visibles solo para el administrador */}
+          {/* Secciones exclusivas para el admin */}
           {user?.email === adminEmail && (
             <>
               <Link to="/admin" onClick={() => setIsOpen(false)} className="hover:underline">
@@ -74,7 +75,7 @@ export default function SidebarLeft({ isOpen, setIsOpen }) {
             </>
           )}
 
-          {/* 🛒 Botón Carrito */}
+          {/* Botón carrito */}
           <button
             onClick={() => setMostrarCarrito(true)}
             className="relative flex items-center gap-2 px-3 py-2 mt-4 text-black bg-yellow-400 rounded hover:bg-yellow-300"

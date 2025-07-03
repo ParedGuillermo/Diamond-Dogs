@@ -14,8 +14,8 @@ export default function AdminProductos() {
     sabores: "",
     colores: "",
     categoria: "",
-    disponibilidad: "en_stock",  // <-- agregué esto con valor por defecto
-    imagen: null,
+    disponibilidad: "en_stock",
+    imagenes: [],  // array para varias imágenes
   });
   const [editandoId, setEditandoId] = useState(null);
   const [subiendo, setSubiendo] = useState(false);
@@ -39,35 +39,50 @@ export default function AdminProductos() {
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    if (name === "imagen") {
-      setProducto((prev) => ({ ...prev, imagen: files[0] || null }));
+    if (name === "imagenes") {
+      setProducto((prev) => ({ ...prev, imagenes: files ? Array.from(files) : [] }));
     } else {
       setProducto((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  const subirImagen = async () => {
-    if (!producto.imagen) return null;
-    const file = producto.imagen;
-    const fileName = `${Date.now()}_${file.name}`;
-    const { error } = await supabase.storage
-      .from("productos")
-      .upload(fileName, file);
-    if (error) {
-      console.error("Error subiendo imagen:", error);
-      return null;
+  const subirImagenes = async () => {
+    if (!producto.imagenes || producto.imagenes.length === 0) return [];
+
+    const urls = [];
+    let contador = 0;
+
+    for (const file of producto.imagenes) {
+      const fileName = `${Date.now()}_${contador++}_${file.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from("productos")
+        .upload(fileName, file, { upsert: true });  // <-- clave para evitar error 400
+
+      if (uploadError) {
+        console.error("Error subiendo imagen:", uploadError);
+        continue; // seguir con las demás
+      }
+
+      const { data, error: urlError } = supabase.storage
+        .from("productos")
+        .getPublicUrl(fileName);
+
+      if (urlError) {
+        console.error("Error obteniendo URL pública:", urlError);
+        continue;
+      }
+
+      urls.push(data.publicUrl);
     }
-    const { data: publicURL } = supabase.storage
-      .from("productos")
-      .getPublicUrl(fileName);
-    return publicURL.publicUrl;
+
+    return urls;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubiendo(true);
     try {
-      const imagenURL = await subirImagen();
+      const imagenesURLs = await subirImagenes();
 
       const productoData = {
         nombre: producto.nombre,
@@ -77,12 +92,9 @@ export default function AdminProductos() {
         sabores: producto.sabores,
         colores: producto.colores,
         categoria: producto.categoria,
-        disponibilidad: producto.disponibilidad,  // <-- agrego disponibilidad aquí
+        disponibilidad: producto.disponibilidad,
+        fotos: imagenesURLs.length > 0 ? imagenesURLs : [],
       };
-
-      if (imagenURL) {
-        productoData.fotos = [imagenURL];
-      }
 
       let error;
       if (editandoId) {
@@ -94,7 +106,7 @@ export default function AdminProductos() {
       } else {
         const { error: insertError } = await supabase
           .from("productos")
-          .insert([{ ...productoData, fotos: imagenURL ? [imagenURL] : [] }]);
+          .insert([productoData]);
         error = insertError;
       }
 
@@ -109,8 +121,8 @@ export default function AdminProductos() {
         sabores: "",
         colores: "",
         categoria: "",
-        disponibilidad: "en_stock", // reset con valor por defecto
-        imagen: null,
+        disponibilidad: "en_stock",
+        imagenes: [],
       });
       setEditandoId(null);
       fetchProductos();
@@ -145,8 +157,8 @@ export default function AdminProductos() {
       sabores: p.sabores || "",
       colores: p.colores || "",
       categoria: p.categoria || "",
-      disponibilidad: p.disponibilidad || "en_stock",  // <-- precargo disponibilidad
-      imagen: null,
+      disponibilidad: p.disponibilidad || "en_stock",
+      imagenes: [], // limpio las nuevas imágenes para subir
     });
     setEditandoId(p.id);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -207,7 +219,6 @@ export default function AdminProductos() {
           rows={4}
         />
 
-        {/* Select para disponibilidad */}
         <select
           name="disponibilidad"
           value={producto.disponibilidad}
@@ -220,9 +231,10 @@ export default function AdminProductos() {
 
         <input
           type="file"
-          name="imagen"
+          name="imagenes"
           onChange={handleChange}
           accept="image/*"
+          multiple
           className="p-2 border border-yellow-500 rounded bg-mgsv-bg text-mgsv-text file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-semibold file:bg-yellow-500 file:text-black hover:file:bg-yellow-400"
         />
 
@@ -232,7 +244,11 @@ export default function AdminProductos() {
             disabled={subiendo}
             className="px-4 py-2 font-bold text-black bg-yellow-400 rounded hover:bg-yellow-300 disabled:opacity-50"
           >
-            {subiendo ? "Guardando..." : editandoId ? "Actualizar producto" : "Cargar producto"}
+            {subiendo
+              ? "Guardando..."
+              : editandoId
+              ? "Actualizar producto"
+              : "Cargar producto"}
           </button>
 
           {editandoId && (
@@ -248,8 +264,8 @@ export default function AdminProductos() {
                   sabores: "",
                   colores: "",
                   categoria: "",
-                  disponibilidad: "en_stock", // reset también acá
-                  imagen: null,
+                  disponibilidad: "en_stock",
+                  imagenes: [],
                 });
               }}
               className="px-4 py-2 font-bold text-white bg-red-600 rounded hover:bg-red-700"
@@ -260,23 +276,35 @@ export default function AdminProductos() {
         </div>
       </form>
 
-      <h2 className="mt-10 mb-4 text-2xl font-bold text-yellow-400">Productos existentes</h2>
+      <h2 className="mt-10 mb-4 text-2xl font-bold text-yellow-400">
+        Productos existentes
+      </h2>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {productos.map((p) => (
-          <div key={p.id} className="p-4 border border-yellow-600 rounded shadow bg-mgsv-card">
+          <div
+            key={p.id}
+            className="p-4 border border-yellow-600 rounded shadow bg-mgsv-card"
+          >
             <p className="font-semibold text-yellow-300">{p.nombre}</p>
             <p className="text-sm text-mgsv-text">{p.descripcion}</p>
-            {p.fotos?.[0] && (
-              <img
-                src={p.fotos[0]}
-                alt={p.nombre}
-                className="object-cover w-full h-40 mt-2 rounded"
-              />
-            )}
+
+            {/* Mostrar todas las imágenes */}
+            <div className="flex flex-wrap gap-2 mt-2">
+              {p.fotos?.map((url, i) => (
+                <img
+                  key={i}
+                  src={url}
+                  alt={`${p.nombre} imagen ${i + 1}`}
+                  className="object-cover w-24 h-24 rounded"
+                />
+              ))}
+            </div>
+
             <p className="mt-1 text-sm italic text-gray-400">
               Disponibilidad: {p.disponibilidad === "en_stock" ? "En Stock" : "A Pedido"}
             </p>
+
             <div className="flex flex-wrap gap-2 mt-4">
               <button
                 onClick={() => handleEdit(p)}

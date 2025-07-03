@@ -8,9 +8,42 @@ import BannerSorteo from "../components/BannerSorteo";
 
 export default function Home() {
   const { user, signOut } = useAuth();
+  const [usuarioInfo, setUsuarioInfo] = useState(null);
+  const [avatarUrl, setAvatarUrl] = useState(null);
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
   const whatsappNumber = "5493718652061";
+
+  useEffect(() => {
+    const fetchUsuarioInfo = async () => {
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("usuarios")
+        .select("apodo, avatar_url")
+        .eq("id", user.id)
+        .single();
+
+      if (error) {
+        console.error("Error al cargar perfil de usuario:", error);
+        setUsuarioInfo(null);
+        setAvatarUrl(null);
+      } else {
+        setUsuarioInfo(data);
+
+        if (data.avatar_url) {
+          const { data: publicUrlData } = supabase.storage
+            .from("avatars")
+            .getPublicUrl(data.avatar_url);
+          setAvatarUrl(publicUrlData.publicUrl);
+        } else {
+          setAvatarUrl(null);
+        }
+      }
+    };
+
+    fetchUsuarioInfo();
+  }, [user]);
 
   useEffect(() => {
     async function fetchProductos() {
@@ -95,10 +128,27 @@ export default function Home() {
 
         {user ? (
           <>
-            <p className="mb-3 text-xs tracking-widest uppercase break-words">
-              Operador activo:{" "}
-              <span className="text-yellow-400">{user.email}</span>
-            </p>
+            <div className="flex flex-col items-center mb-2">
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt="Avatar Operador"
+                  className="object-cover w-16 h-16 mb-1 border-2 border-yellow-400 rounded-full shadow-md"
+                />
+              ) : (
+                <div className="flex items-center justify-center w-16 h-16 mb-1 text-xs font-semibold text-yellow-400 bg-gray-700 border-2 border-yellow-400 rounded-full">
+                  SIN AVATAR
+                </div>
+              )}
+
+              <p className="text-xs tracking-widest uppercase break-words">
+                Operador activo:{" "}
+                <span className="text-yellow-400">
+                  {usuarioInfo?.apodo || user.email}
+                </span>
+              </p>
+            </div>
+
             <button
               onClick={signOut}
               className="px-6 py-2 text-sm font-bold tracking-wide text-black uppercase transition bg-yellow-400 border-2 border-yellow-400 rounded hover:bg-yellow-300 hover:shadow-lg"

@@ -8,14 +8,14 @@ export default function AdminUsuarios() {
   const [loading, setLoading] = useState(true);
   const [editUser, setEditUser] = useState(null);
   const [formData, setFormData] = useState({});
-  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarFiles, setAvatarFiles] = useState([]);
+  const [selectedAvatar, setSelectedAvatar] = useState(null);
 
   useEffect(() => {
     if (!user || user.email !== "walterguillermopared@gmail.com") return;
 
     const fetchUsuarios = async () => {
       const { data, error } = await supabase.from("usuarios").select("*");
-
       if (error) {
         console.error("Error al traer usuarios:", error.message);
       } else {
@@ -27,10 +27,28 @@ export default function AdminUsuarios() {
     fetchUsuarios();
   }, [user]);
 
+  useEffect(() => {
+    const fetchAvatars = async () => {
+      const { data, error } = await supabase.storage
+        .from("avatars")
+        .list("", { limit: 100, offset: 0 });
+
+      if (error) {
+        console.error("Error cargando avatars:", error.message);
+        setAvatarFiles([]);
+        return;
+      }
+
+      setAvatarFiles(data || []);
+    };
+
+    fetchAvatars();
+  }, []);
+
   const handleEditClick = (usuario) => {
     setEditUser(usuario);
     setFormData(usuario);
-    setAvatarFile(null);
+    setSelectedAvatar(usuario.avatar_url || null);
   };
 
   const handleChange = (e) => {
@@ -38,35 +56,18 @@ export default function AdminUsuarios() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const uploadAvatar = async (file, userId) => {
-    if (!file) return null;
+  const handleAvatarSelect = (fileName) => {
+    setSelectedAvatar(fileName);
+    setFormData((prev) => ({ ...prev, avatar_url: fileName }));
+  };
 
-    const fileExt = file.name.split(".").pop();
-    const fileName = `${userId}/avatar_${Date.now()}.${fileExt}`;
-    const filePath = fileName;
-
-    const { error: uploadError } = await supabase.storage
-      .from("avatars") // nombre del bucket, ajustá si es otro
-      .upload(filePath, file, { upsert: true });
-
-    if (uploadError) {
-      alert("Error subiendo avatar: " + uploadError.message);
-      return null;
-    }
-
-    const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
-
-    return data.publicUrl;
+  const getAvatarUrl = (fileName) => {
+    if (!fileName) return "/default-avatar.png";
+    const { data } = supabase.storage.from("avatars").getPublicUrl(fileName);
+    return data.publicUrl || data.publicURL || "";
   };
 
   const handleSave = async () => {
-    let avatar_url = formData.avatar_url || null;
-
-    if (avatarFile) {
-      const url = await uploadAvatar(avatarFile, formData.id);
-      if (url) avatar_url = url;
-    }
-
     const { error } = await supabase
       .from("usuarios")
       .update({
@@ -77,7 +78,7 @@ export default function AdminUsuarios() {
         nivel: formData.nivel,
         puntos: formData.puntos,
         suscripcion: formData.suscripcion,
-        avatar_url,
+        avatar_url: formData.avatar_url,
       })
       .eq("id", formData.id);
 
@@ -86,7 +87,6 @@ export default function AdminUsuarios() {
     } else {
       alert("Usuario actualizado correctamente");
       setEditUser(null);
-      setAvatarFile(null);
       const { data } = await supabase.from("usuarios").select("*");
       setUsuarios(data);
     }
@@ -135,35 +135,6 @@ export default function AdminUsuarios() {
             className="p-4 mb-6 border border-yellow-700 rounded"
             style={{ backgroundColor: "#2E2E2E" }}
           >
-            <div className="mb-3">
-              <label
-                style={{ display: "block", marginBottom: 4, color: "#C2B280" }}
-              >
-                Avatar:
-              </label>
-              <img
-                src={
-                  avatarFile
-                    ? URL.createObjectURL(avatarFile)
-                    : formData.avatar_url || "/default-avatar.png"
-                }
-                alt="Avatar preview"
-                style={{
-                  width: 80,
-                  height: 80,
-                  borderRadius: "50%",
-                  objectFit: "cover",
-                  marginBottom: 8,
-                }}
-              />
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setAvatarFile(e.target.files[0])}
-                style={{ color: "#B0B0B0" }}
-              />
-            </div>
-
             {[
               "nombre",
               "apellido",
@@ -234,6 +205,39 @@ export default function AdminUsuarios() {
               </select>
             </div>
 
+            <div className="mb-3">
+              <p className="mb-2 font-semibold text-yellow-400">Elegí avatar:</p>
+              <div
+                className="flex flex-wrap gap-2 p-2 overflow-y-auto bg-gray-900 border border-yellow-600 rounded max-h-48"
+                style={{ maxHeight: 200 }}
+              >
+                {avatarFiles.length === 0 && (
+                  <p className="text-sm text-gray-400">No hay avatars disponibles</p>
+                )}
+                {avatarFiles.map((file) => {
+                  const publicURL = getAvatarUrl(file.name);
+                  const isSelected = file.name === selectedAvatar;
+                  return (
+                    <button
+                      key={file.name}
+                      type="button"
+                      onClick={() => handleAvatarSelect(file.name)}
+                      className={`border-2 rounded cursor-pointer w-16 h-16 p-1 ${
+                        isSelected ? "border-yellow-400" : "border-transparent"
+                      }`}
+                      title={file.name}
+                    >
+                      <img
+                        src={publicURL}
+                        alt={file.name}
+                        className="object-cover w-full h-full rounded"
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <div className="flex gap-4">
               <button
                 onClick={handleSave}
@@ -246,12 +250,8 @@ export default function AdminUsuarios() {
                   cursor: "pointer",
                   fontFamily: "Consolas, monospace",
                 }}
-                onMouseOver={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#728C4B")
-                }
-                onMouseOut={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#556B2F")
-                }
+                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#728C4B")}
+                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#556B2F")}
               >
                 Guardar
               </button>
@@ -265,12 +265,8 @@ export default function AdminUsuarios() {
                   cursor: "pointer",
                   fontFamily: "Consolas, monospace",
                 }}
-                onMouseOver={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#777777")
-                }
-                onMouseOut={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#555555")
-                }
+                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#777777")}
+                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#555555")}
               >
                 Cancelar
               </button>
@@ -283,7 +279,7 @@ export default function AdminUsuarios() {
             style={{ backgroundColor: "#2E2E2E" }}
           >
             <img
-              src={u.avatar_url || "/default-avatar.png"}
+              src={getAvatarUrl(u.avatar_url)}
               alt={`${u.nombre} avatar`}
               style={{
                 width: 60,

@@ -8,6 +8,7 @@ export default function AdminUsuarios() {
   const [loading, setLoading] = useState(true);
   const [editUser, setEditUser] = useState(null);
   const [formData, setFormData] = useState({});
+  const [avatarFile, setAvatarFile] = useState(null);
 
   useEffect(() => {
     if (!user || user.email !== "walterguillermopared@gmail.com") return;
@@ -29,6 +30,7 @@ export default function AdminUsuarios() {
   const handleEditClick = (usuario) => {
     setEditUser(usuario);
     setFormData(usuario);
+    setAvatarFile(null);
   };
 
   const handleChange = (e) => {
@@ -36,7 +38,35 @@ export default function AdminUsuarios() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const uploadAvatar = async (file, userId) => {
+    if (!file) return null;
+
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${userId}/avatar_${Date.now()}.${fileExt}`;
+    const filePath = fileName;
+
+    const { error: uploadError } = await supabase.storage
+      .from("avatars") // nombre del bucket, ajustá si es otro
+      .upload(filePath, file, { upsert: true });
+
+    if (uploadError) {
+      alert("Error subiendo avatar: " + uploadError.message);
+      return null;
+    }
+
+    const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
+
+    return data.publicUrl;
+  };
+
   const handleSave = async () => {
+    let avatar_url = formData.avatar_url || null;
+
+    if (avatarFile) {
+      const url = await uploadAvatar(avatarFile, formData.id);
+      if (url) avatar_url = url;
+    }
+
     const { error } = await supabase
       .from("usuarios")
       .update({
@@ -47,6 +77,7 @@ export default function AdminUsuarios() {
         nivel: formData.nivel,
         puntos: formData.puntos,
         suscripcion: formData.suscripcion,
+        avatar_url,
       })
       .eq("id", formData.id);
 
@@ -55,6 +86,7 @@ export default function AdminUsuarios() {
     } else {
       alert("Usuario actualizado correctamente");
       setEditUser(null);
+      setAvatarFile(null);
       const { data } = await supabase.from("usuarios").select("*");
       setUsuarios(data);
     }
@@ -103,6 +135,35 @@ export default function AdminUsuarios() {
             className="p-4 mb-6 border border-yellow-700 rounded"
             style={{ backgroundColor: "#2E2E2E" }}
           >
+            <div className="mb-3">
+              <label
+                style={{ display: "block", marginBottom: 4, color: "#C2B280" }}
+              >
+                Avatar:
+              </label>
+              <img
+                src={
+                  avatarFile
+                    ? URL.createObjectURL(avatarFile)
+                    : formData.avatar_url || "/default-avatar.png"
+                }
+                alt="Avatar preview"
+                style={{
+                  width: 80,
+                  height: 80,
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  marginBottom: 8,
+                }}
+              />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setAvatarFile(e.target.files[0])}
+                style={{ color: "#B0B0B0" }}
+              />
+            </div>
+
             {[
               "nombre",
               "apellido",
@@ -221,6 +282,17 @@ export default function AdminUsuarios() {
             className="flex flex-col gap-2 p-4 mb-6 border border-yellow-700 rounded"
             style={{ backgroundColor: "#2E2E2E" }}
           >
+            <img
+              src={u.avatar_url || "/default-avatar.png"}
+              alt={`${u.nombre} avatar`}
+              style={{
+                width: 60,
+                height: 60,
+                borderRadius: "50%",
+                objectFit: "cover",
+                marginBottom: 8,
+              }}
+            />
             <p>
               <strong>Nombre:</strong> {u.nombre}
             </p>
